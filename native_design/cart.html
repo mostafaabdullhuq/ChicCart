@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Shop</title>
+    <link rel="stylesheet" href="./../../public/css/output.css" />
+    <link rel="stylesheet" href="./../../node_modules/@fortawesome/fontawesome-free/css/all.min.css" />
+</head>
+
+<body class="relative bg-slate-50">
+    <!--!! Heading navbar start !!-->
+    <header class="header">
+        <div class="header-upper-container">
+            <div class="upper-wrapper">
+                <h1 class="header-logo">
+                    <a href="/" class="header-logo-wrapper">
+                        <i class="fa-solid fa-cart-flatbed"></i>
+                        <p>ChicCart</p>
+                    </a>
+                </h1>
+                <!-- navigation end -->
+                <form class="header-search-container">
+                    <i class="fa-solid fa-magnifying-glass header-search-logo"></i>
+                    <input type="text" class="header-search-input" placeholder="Search" />
+                </form>
+                <!-- cart and user controls start -->
+
+                <div class="upper-controls-container">
+                    <div class="upper-control-item group">
+                        <p class="upper-control-item-text">Login</p>
+                        <a href="">
+                            <i class="fa-solid fa-user"></i>
+                        </a>
+                        <!-- scale-0 group-hover:scale-100 -->
+                        <!-- <div
+                                class="user-popup bg-white flex duration-[100ms] transition-transform text-lg flex-col items-center absolute min-w-fit text-blue-500 shadow-md w-fit px-6 left-[-25%] text-center top-[110%] rounded-lg py-2"
+                            >
+                                <p class="w-full"><a class="w-full break-keep" href="">Orders</a></p>
+                                <p class="w-full"><a class="w-full break-keep" href="">Add Product</a></p>
+                                <p class="w-full"><a class="w-full break-keep" href="">Admin Products</a></p>
+                            </div> -->
+                    </div>
+                    <div class="upper-control-item">
+                        <p class="upper-control-item-text">Cart</p>
+                        <a href="" class="relative">
+                            <div class="cart-products-count">
+                                <span class="text-xs text-center">99+</span>
+                            </div>
+                            <i class="fa-solid fa-cart-shopping"></i>
+                        </a>
+                    </div>
+                </div>
+                <!-- cart and user controls end -->
+            </div>
+        </div>
+    </header>
+    <!-- navigation start -->
+    <nav class="navbar">
+        <ul class="navbar-items-container">
+            <!-- <li class="nav-item active-nav"><a href="">Home</a></li> -->
+            <!-- <li class="nav-item relative">
+                    <a href="">All Categories</a>
+                    <div class="absolute w-[300px] h-[300px] bg-red-500 z-50"></div>
+                </li> -->
+            <li class="nav-item"><a href="">All Products</a></li>
+            <li class="nav-item"><a href="">Electronics</a></li>
+            <li class="nav-item"><a href="">Supermarket</a></li>
+            <li class="nav-item"><a href="">Deals</a></li>
+            <li class="nav-item"><a href="">Beauty & Health</a></li>
+            <li class="nav-item"><a href="">Mobiles</a></li>
+            <li class="nav-item"><a href="">Admin Products</a></li>
+            <li class="nav-item"><a href="">Add Product</a></li>
+            <li class="nav-item"><a href="">About</a></li>
+            <li class="nav-item"><a href="">Contact</a></li>
+        </ul>
+    </nav>
+    <!--!! Heading navbar end !!-->
+
+    <!--!! content start !!-->
+    <main class="cart-container">
+        <!-- left products section start -->
+        <div class="cart-products-container">
+            <!-- product start -->
+            <div class="cart-product group">
+                <!-- product info start -->
+                <div class="cart-product-info">
+                    <div class="cart-product-image-container">
+                        <div class="cart-product-image-wrapper">
+                            <img class="cart-product-image"
+                                src="https://images.unsplash.com/photo-1542291026-7eec264c27ff?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1470&q=80"
+                                alt="" />
+                        </div>
+                    </div>
+
+                    <div class="cart-product-info-wrapper">
+                        <!-- cart product title start -->
+                        <p class="cart-product-title">Lorem ipsum dolor sit amet consectetur adipisicing elit. Impedit,
+                            iusto!</p>
+                        <!-- cart product title end -->
+
+                        <div class="cart-product-details">
+                            <div class="cart-product-details-wrapper">
+                                <!-- product quantity start -->
+                                <div class="flex">
+                                    <div class="cart-product-qty-control rounded-l-md">
+                                        <i class="fa-solid fa-minus"></i>
+                                    </div>
+                                    <input type="text" value="1" name="prod-qty" class="cart-product-qty" />
+                                    <div class="cart-product-qty-control rounded-r-md">
+                                        <i class="fa-solid fa-plus"></i>
+                                    </div>
+                                </div>
+                                <!-- product quantity end -->
+
+                                <!-- product price start -->
+                                <div class="cart-product-price">$100</div>
+                                <!-- product price end -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- product info end -->
+
+                <!-- product delete start -->
+                <div class="cart-product-delete">
+                    <i class="fa-solid fa-xmark"></i>
+                </div>
+                <!-- product delete end -->
+            </div>
+            <!-- product end -->
+            <!-- product start -->
+            <div class="cart-product group">
+                <!-- product info start -->
+                <div class="cart-product-info">
+                    <div class="cart-product-image-container">
+                        <div class="cart-product-image-wrapper">
+                            <img class="cart-product-image"
+                                src="https://images.unsplash.com/photo-1515955656352-a1fa3ffcd111?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1470&q=80"
+                                alt="" />
+                        </div>
+                    </div>
+
+                    <div class="cart-product-info-wrapper">
+                        <!-- cart product title start -->
+                        <p class="cart-product-title">Lorem ipsum dolor sit amet, consectetur adipisicing.</p>
+                        <!-- cart product title end -->
+
+                        <div class="cart-product-details">
+                            <div class="cart-product-details-wrapper">
+                                <!-- product quantity start -->
+                                <div class="flex">
+                                    <div class="cart-product-qty-control rounded-l-md">
+                                        <i class="fa-solid fa-minus"></i>
+                                    </div>
+                                    <input type="text" value="1" name="prod-qty" class="cart-product-qty" />
+                                    <div class="cart-product-qty-control rounded-r-md">
+                                        <i class="fa-solid fa-plus"></i>
+                                    </div>
+                                </div>
+                                <!-- product quantity end -->
+
+                                <!-- product price start -->
+                                <div class="cart-product-price">$1200</div>
+                                <!-- product price end -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- product info end -->
+
+                <!-- product delete start -->
+                <div class="cart-product-delete">
+                    <i class="fa-solid fa-xmark"></i>
+                </div>
+                <!-- product delete end -->
+            </div>
+            <!-- product end -->
+            <!-- product start -->
+            <div class="cart-product group">
+                <!-- product info start -->
+                <div class="cart-product-info">
+                    <div class="cart-product-image-container">
+                        <div class="cart-product-image-wrapper">
+                            <img class="cart-product-image"
+                                src="https://images.unsplash.com/photo-1491553895911-0055eca6402d?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1180&q=80"
+                                alt="" />
+                        </div>
+                    </div>
+
+                    <div class="cart-product-info-wrapper">
+                        <!-- cart product title start -->
+                        <p class="cart-product-title">Lorem ipsum dolor sit amet consectetur adipisicing elit. Impedit,
+                            iusto!</p>
+                        <!-- cart product title end -->
+
+                        <div class="cart-product-details">
+                            <div class="cart-product-details-wrapper">
+                                <!-- product quantity start -->
+                                <div class="flex">
+                                    <div class="cart-product-qty-control rounded-l-md">
+                                        <i class="fa-solid fa-minus"></i>
+                                    </div>
+                                    <input type="text" value="1" name="prod-qty" class="cart-product-qty" />
+                                    <div class="cart-product-qty-control rounded-r-md">
+                                        <i class="fa-solid fa-plus"></i>
+                                    </div>
+                                </div>
+                                <!-- product quantity end -->
+
+                                <!-- product price start -->
+                                <div class="cart-product-price">$100</div>
+                                <!-- product price end -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- product info end -->
+
+                <!-- product delete start -->
+                <div class="cart-product-delete">
+                    <i class="fa-solid fa-xmark"></i>
+                </div>
+                <!-- product delete end -->
+            </div>
+            <!-- product end -->
+            <!-- product start -->
+            <div class="cart-product group">
+                <!-- product info start -->
+                <div class="cart-product-info">
+                    <div class="cart-product-image-container">
+                        <div class="cart-product-image-wrapper">
+                            <img class="cart-product-image"
+                                src="https://images.unsplash.com/photo-1523275335684-37898b6baf30?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1598&q=80"
+                                alt="" />
+                        </div>
+                    </div>
+
+                    <div class="cart-product-info-wrapper">
+                        <!-- cart product title start -->
+                        <p class="cart-product-title">Lorem ipsum dolor sit amet consectetur adipisicing elit.
+                            Consequatur ea tenetur natus voluptates.</p>
+                        <!-- cart product title end -->
+
+                        <div class="cart-product-details">
+                            <div class="cart-product-details-wrapper">
+                                <!-- product quantity start -->
+                                <div class="flex">
+                                    <div class="cart-product-qty-control rounded-l-md">
+                                        <i class="fa-solid fa-minus"></i>
+                                    </div>
+                                    <input type="text" value="1" name="prod-qty" class="cart-product-qty" />
+                                    <div class="cart-product-qty-control rounded-r-md">
+                                        <i class="fa-solid fa-plus"></i>
+                                    </div>
+                                </div>
+                                <!-- product quantity end -->
+
+                                <!-- product price start -->
+                                <div class="cart-product-price">$100</div>
+                                <!-- product price end -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- product info end -->
+
+                <!-- product delete start -->
+                <div class="cart-product-delete">
+                    <i class="fa-solid fa-xmark"></i>
+                </div>
+                <!-- product delete end -->
+            </div>
+            <!-- product end -->
+            <!-- product start -->
+            <div class="cart-product group">
+                <!-- product info start -->
+                <div class="cart-product-info">
+                    <div class="cart-product-image-container">
+                        <div class="cart-product-image-wrapper">
+                            <img class="cart-product-image"
+                                src="https://images.unsplash.com/photo-1611930022073-b7a4ba5fcccd?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=774&q=80"
+                                alt="" />
+                        </div>
+                    </div>
+
+                    <div class="cart-product-info-wrapper">
+                        <!-- cart product title start -->
+                        <p class="cart-product-title">
+                            Lorem ipsum dolor sit amet consectetur adipisicing elit. Blanditiis dolore nesciunt placeat
+                            unde quis, ullam eaque aliquam modi voluptates perspiciatis!
+                        </p>
+                        <!-- cart product title end -->
+
+                        <div class="cart-product-details">
+                            <div class="cart-product-details-wrapper">
+                                <!-- product quantity start -->
+                                <div class="flex">
+                                    <div class="cart-product-qty-control rounded-l-md">
+                                        <i class="fa-solid fa-minus"></i>
+                                    </div>
+                                    <input type="text" value="1" name="prod-qty" class="cart-product-qty" />
+                                    <div class="cart-product-qty-control rounded-r-md">
+                                        <i class="fa-solid fa-plus"></i>
+                                    </div>
+                                </div>
+                                <!-- product quantity end -->
+
+                                <!-- product price start -->
+                                <div class="cart-product-price">$100</div>
+                                <!-- product price end -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- product info end -->
+
+                <!-- product delete start -->
+                <div class="cart-product-delete">
+                    <i class="fa-solid fa-xmark"></i>
+                </div>
+                <!-- product delete end -->
+            </div>
+            <!-- product end -->
+            <!-- product start -->
+            <div class="cart-product group">
+                <!-- product info start -->
+                <div class="cart-product-info">
+                    <div class="cart-product-image-container">
+                        <div class="cart-product-image-wrapper">
+                            <img class="cart-product-image"
+                                src="https://images.unsplash.com/photo-1505740420928-5e560c06d30e?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1470&q=80"
+                                alt="" />
+                        </div>
+                    </div>
+
+                    <div class="cart-product-info-wrapper">
+                        <!-- cart product title start -->
+                        <p class="cart-product-title">Lorem ipsum dolor sit amet.</p>
+                        <!-- cart product title end -->
+
+                        <div class="cart-product-details">
+                            <div class="cart-product-details-wrapper">
+                                <!-- product quantity start -->
+                                <div class="flex">
+                                    <div class="cart-product-qty-control rounded-l-md">
+                                        <i class="fa-solid fa-minus"></i>
+                                    </div>
+                                    <input type="text" value="1" name="prod-qty" class="cart-product-qty" />
+                                    <div class="cart-product-qty-control rounded-r-md">
+                                        <i class="fa-solid fa-plus"></i>
+                                    </div>
+                                </div>
+                                <!-- product quantity end -->
+
+                                <!-- product price start -->
+                                <div class="cart-product-price">$100</div>
+                                <!-- product price end -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- product info end -->
+
+                <!-- product delete start -->
+                <div class="cart-product-delete">
+                    <i class="fa-solid fa-xmark"></i>
+                </div>
+                <!-- product delete end -->
+            </div>
+            <!-- product end -->
+        </div>
+        <!-- left products section end -->
+        <!-- right cart details section start -->
+        <div class="cart-info-container">
+            <h1 class="cart-info-title">Order Summary</h1>
+            <div class="cart-subtotal-container">
+                <p class="cart-info-heading">Subtotal <span class="cart-info-subtitle"> (3 items)</span></p>
+                <p class="cart-info-price">$50000</p>
+            </div>
+            <div class="cart-subtotal-container">
+                <p class="cart-info-heading">Shipping</p>
+                <p class="cart-info-price">Free</p>
+            </div>
+            <!-- <h1 class="cart-info-heading">Promo Code</h1> -->
+            <form action="" class="promo-container">
+                <input type="text" name="promo-code" class="promo-code" placeholder="Promo Code" />
+                <button type="submit" class="promo-code-submit">Apply</button>
+            </form>
+            <div class="cart-subtotal-container">
+                <p class="cart-info-total">Total</p>
+                <p class="cart-info-total-price">$50000</p>
+            </div>
+            <button class="cart-checkout-wrapper">
+                <a class="cart-checkout" href="#">Checkout</a>
+            </button>
+        </div>
+        <!-- right cart details section end -->
+    </main>
+    <!--!! content end !!-->
+    <footer class="footer">
+        <div class="footer-wrapper">
+            <div class="upper-footer-container">
+                <div class="payments-container">
+                    <img src="./../../public/assets/images/paypal.svg" class="w-16" alt="" />
+                    <img src="./../../public/assets/images/mastercard.svg" class="w-14" alt="" />
+                    <img src="./../../public/assets/images/visa.svg" class="w-11" alt="" />
+                    <img src="./../../public/assets/images/amex.svg" class="w-14" alt="" />
+                </div>
+                <ul class="footer-navigation">
+                    <li class="min-w-fit"><a href="#" class="hover:underline hover:font-semibold">Warranty Policy</a>
+                    </li>
+                    <li class="min-w-fit"><a href="#" class="hover:underline hover:font-semibold">Sell with us</a></li>
+                    <li class="min-w-fit"><a href="#" class="hover:underline hover:font-semibold">Terms of Use</a></li>
+                    <li class="min-w-fit"><a href="#" class="hover:underline hover:font-semibold">Terms of Sale</a></li>
+                    <li class="min-w-fit"><a href="#" class="hover:underline hover:font-semibold">Privacy Policy</a>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- copyright section -->
+            <div class="copyright-container">
+                <p>&copy; 2023 ChicCart. All Rights Reserved</p>
+            </div>
+        </div>
+    </footer>
+</body>
+
+</html>

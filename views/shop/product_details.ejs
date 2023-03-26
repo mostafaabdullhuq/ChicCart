@@ -1,0 +1,125 @@
+<%- include('./../layouts/main_start.ejs') %>
+<%- include('./../layouts/header.ejs') %>
+<!--!! content start !!-->
+<main class="content-full">
+    <div class="product-details-container">
+        <!-- left side -->
+        <div class="product-images-container">
+            <div class="active-product-image-container">
+                <img src="<%= product.images[0] %>" class="active-product-image" alt="" />
+            </div>
+            <% if (product.images.slice(1)) { %>
+            <div class="alt-images-container">
+                <% for (let image of product.images.slice(1)) { %>
+                <div class="alt-image-container">
+                    <img class="alt-product-image" src="<%= image %>" alt="" />
+                </div>
+                <% } %>
+            </div>
+            <% } %>
+        </div>
+        <!-- right side -->
+        <div class="product-details">
+            <!-- product name -->
+            <h1 class="product-details-title"><%= product.title %></h1>
+            <!-- product rating and price -->
+            <div class="product-details-price-rating">
+                <p class="product-details-price">$<%= product.price %></p>
+                <div class="flex gap-2 items-center">
+                    <div class="product-rating">
+                        <% for (let i = 0; i < 5; i++) { %>
+                        <% if (i < Number(String(product.rating).split('.')[0])) { %>
+                        <i class="fa-solid fa-star"></i>
+                        <% } else if (i === Number(String(product.rating).split('.')[0]) && Number(String(product.rating).split('.')[1]) ) { %>
+                        <i class="fa-solid fa-star-half-stroke"></i> <% } else { %>
+                        <i class="fa-regular fa-star"></i>
+                        <% } %>
+                        <% } %>
+                    </div>
+                    <div class="font-semibold text-slate-700">(<%= Number(Math.random() * 1000).toFixed() %>) Ratings
+                    </div>
+                </div>
+            </div>
+
+            <pre class="product-details-description"><%= product.description %></pre>
+
+            <!-- product options -->
+            <div class="sizes text-slate-700 font-extrabold flex flex-col gap-4">
+                <h3 class="text-lg font-semibold text-gray-600">Sizes</h3>
+                <!-- overflow-scroll scrollbar-hide -->
+                <ul class="flex gap-2 max-w-full flex-wrap">
+                    <li
+                        class="cursor-pointer hover:bg-blue-500 hover:text-white hover:border-blue-500 transition-colors border-2 border-gray-200 bg-gray-100 text-slate-600 font-bold px-4 py-2 rounded-md uppercase">
+                        36
+                    </li>
+                    <li
+                        class="cursor-pointer hover:bg-blue-500 hover:text-white hover:border-blue-500 transition-colors border-2 border-gray-200 bg-gray-100 text-slate-600 font-bold px-4 py-2 rounded-md uppercase">
+                        37
+                    </li>
+                    <li
+                        class="cursor-pointer hover:bg-blue-500 hover:text-white hover:border-blue-500 transition-colors border-2 border-blue-500 bg-blue-500 text-white font-bold px-4 py-2 rounded-md uppercase">
+                        38
+                    </li>
+                    <li
+                        class="cursor-pointer hover:bg-blue-500 hover:text-white hover:border-blue-500 transition-colors border-2 border-gray-200 bg-gray-100 text-slate-600 font-bold px-4 py-2 rounded-md uppercase">
+                        39
+                    </li>
+                    <li
+                        class="cursor-pointer hover:bg-blue-500 hover:text-white hover:border-blue-500 transition-colors border-2 border-gray-200 bg-gray-100 text-slate-600 font-bold px-4 py-2 rounded-md uppercase">
+                        40
+                    </li>
+                    <li
+                        class="cursor-pointer hover:bg-blue-500 hover:text-white hover:border-blue-500 transition-colors border-2 border-gray-200 bg-gray-100 text-slate-600 font-bold px-4 py-2 rounded-md uppercase">
+                        41
+                    </li>
+                    <li
+                        class="cursor-pointer hover:bg-blue-500 hover:text-white hover:border-blue-500 transition-colors border-2 border-gray-200 bg-gray-100 text-slate-600 font-bold px-4 py-2 rounded-md uppercase">
+                        42
+                    </li>
+                </ul>
+                <h3 class="text-lg font-semibold text-gray-600">Colors</h3>
+                <ul class="flex gap-2 max-w-full flex-wrap">
+                    <li
+                        class="w-12 h-10 border border-gray-300 hover:scale-[103%] cursor-pointer transition-transform bg-red-600 rounded-md">
+                    </li>
+                    <li
+                        class="w-12 h-10 border border-gray-300 hover:scale-[103%] cursor-pointer transition-transform bg-opacity-40 bg-slate-900 rounded-md">
+                    </li>
+                    <li
+                        class="w-12 h-10 border border-gray-300 hover:scale-[103%] cursor-pointer transition-transform bg-opacity-40 bg-orange-600 rounded-md">
+                    </li>
+                    <li
+                        class="w-12 h-10 border border-gray-300 hover:scale-[103%] cursor-pointer transition-transform bg-opacity-40 bg-green-800 rounded-md">
+                    </li>
+                </ul>
+            </div>
+            <!-- product price, quantity and add to cart -->
+            <form action="/cart" method="post" class="flex gap-2 w-[90%]">
+                <input type="number" name="quantity"
+                    class="border py-3 outline-blue-500 border-gray-300 rounded-md bg-gray-100 px-4 w-[30%] font-semibold"
+                    value="1" />
+                <input type="hidden" name="id" value="<%= product.id %>">
+                <button type="submit"
+                    class="px-8 min-w-[70%] hover:bg-blue-600 transition-colors py-3.5 border-2 border-blue-500 rounded-md font-[550] bg-blue-500 text-white">
+                    Add to cart
+                </button>
+            </form>
+        </div>
+    </div>
+</main>
+<!--!! content end !!-->
+<%- include('./../layouts/footer.ejs') %>
+<script>
+    const activeProductImg = document.querySelector(".active-product-image"),
+        altProductImgs = document.querySelectorAll(".alt-product-image");
+
+    Array.from(altProductImgs).forEach((img) => {
+        img.addEventListener("click", function (e) {
+            let activeImgSrc = activeProductImg.src;
+            activeProductImg.src = this.src;
+            this.src = activeImgSrc;
+            console.log(e.target);
+        });
+    });
+</script>
+<%- include('./../layouts/main_end.ejs') %>

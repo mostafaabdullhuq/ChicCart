@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Sign in</title>
+        <link rel="stylesheet" href="./../../public/css/output.css" />
+        <link rel="stylesheet" href="./../../node_modules/@fortawesome/fontawesome-free/css/all.min.css" />
+    </head>
+
+    <body class="bg-slate-50 relative">
+        <img src="./../../public/assets/images/login.svg" class="absolute opacity-70 top-[50%] left-0 right-0 translate-y-[-50%]" alt="" />
+        <div class="overlay bg-slate-300 absolute inset-0 bg-opacity-40 backdrop-blur-[2px]"></div>
+        <main class="z-10 relative container flex-col gap-8 flex items-center justify-center w-screen h-screen">
+            <form class="login-form bg-white p-5 py-8 rounded-2xl shadow-xl border max-w-[700px] flex gap-3 flex-col w-full">
+                <h1 class="md:text-3xl text-center font-bold text-slate-700 text-xl mb-8">Create your account and enjoy shopping.</h1>
+                <div class="grid grid-cols-2 gap-4">
+                    <input type="text" placeholder="First Name" class="form-control" />
+                    <input type="text" placeholder="Last Name" class="form-control" />
+                </div>
+                <input class="form-control" type="email" name="email" placeholder="Email address" />
+                <input class="form-control" type="text" name="text" placeholder="Username" />
+                <input class="form-control" type="password" name="password" placeholder="Password" />
+                <button class="form-submit" type="submit">Sign up</button>
+                <p class="text-center text-slate-800 font-semibold">
+                    Already have an account?
+                    <a href="./login.html" class="underline text-blue-500 font-semibold hover:font-bold">Login</a>
+                </p>
+            </form>
+        </main>
+    </body>
+</html>

@@ -1,0 +1,27 @@
+<%- include('./layouts/main_start.ejs') %>
+<img src="./../../public/assets/images/login.svg"
+    class="absolute opacity-70 top-[50%] left-0 right-0 translate-y-[-50%]" alt="" />
+<div class="overlay bg-slate-300 absolute inset-0 bg-opacity-40 backdrop-blur-[2px]"></div>
+<main class="z-10 relative container flex-col gap-8 flex items-center justify-center w-screen h-screen">
+    <form class="login-form bg-white p-5 py-8 rounded-2xl shadow-xl border max-w-[700px] flex gap-3 flex-col w-full">
+        <h1 class="md:text-3xl text-center font-bold text-slate-700 text-xl mb-8">Welcome back, Sign in to your
+            account.</h1>
+        <input class="form-control" type="email" name="email" id="" placeholder="Email address or Username" />
+        <input class="form-control" type="password" name="password" id="" placeholder="Password" />
+        <div class="flex justify-between px-2 mb-5">
+            <div class="flex gap-2 items-center">
+                <input id="remember" name="remember" type="checkbox" class="cursor-pointer" />
+                <label for="remember" class="text-slate-800 font-[450] cursor-pointer">Remember me</label>
+            </div>
+            <p class="font-[500] hover:font-bold underline text-blue-600"><a href="#">Forgot your password?</a>
+            </p>
+        </div>
+        <button class="form-submit" type="submit">Sign in</button>
+        <p class="text-center text-slate-800 font-semibold">
+            New Customer?
+            <a href="./signup.html" class="underline text-blue-500 font-semibold hover:font-bold">Create account
+                now</a>
+        </p>
+    </form>
+</main>
+<%- include('./layouts/main_end.ejs') %>

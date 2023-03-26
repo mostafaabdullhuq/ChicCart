@@ -1,0 +1,67 @@
+<!--!! Heading navbar start !!-->
+<header class="header">
+    <div class="header-upper-container">
+        <div class="upper-wrapper">
+            <h1 class="header-logo">
+                <a href="/" class="header-logo-wrapper">
+                    <i class="fa-solid fa-cart-flatbed"></i>
+                    <p>ChicCart</p>
+                </a>
+            </h1>
+            <!-- navigation end -->
+            <form class="header-search-container">
+                <i class="fa-solid fa-magnifying-glass header-search-logo"></i>
+                <input type="text" class="header-search-input" placeholder="Search" />
+            </form>
+            <!-- cart and user controls start -->
+
+            <div class="upper-controls-container">
+                <div class="upper-control-item group">
+                    <p class="upper-control-item-text">Login</p>
+                    <a href="/login" class="upper-control-icon">
+                        <i class="fa-solid fa-user"></i>
+                    </a>
+                    <!-- scale-0 group-hover:scale-100 -->
+                    <!-- <div
+                                class="user-popup bg-white flex duration-[100ms] transition-transform text-lg flex-col items-center absolute min-w-fit text-blue-500 shadow-md w-fit px-6 left-[-25%] text-center top-[110%] rounded-lg py-2"
+                            >
+                                <p class="w-full"><a class="w-full break-keep" href="">Orders</a></p>
+                                <p class="w-full"><a class="w-full break-keep" href="">Add Product</a></p>
+                                <p class="w-full"><a class="w-full break-keep" href="">Admin Products</a></p>
+                            </div> -->
+                </div>
+                <div class="upper-control-item">
+                    <a href="/cart" class="relative upper-control-icon">
+                        <!-- <div class="cart-products-count">
+                                    <span class="text-xs text-center">99+</span>
+                                </div> -->
+                        <i class="fa-solid fa-bag-shopping"></i>
+                    </a>
+                    <p class="upper-control-item-text">(0)</p>
+                </div>
+            </div>
+            <!-- cart and user controls end -->
+        </div>
+    </div>
+</header>
+<!-- navigation start -->
+<nav class="navbar">
+    <ul class="navbar-items-container">
+        <!-- <li class="nav-item active-nav"><a href="">Home</a></li> -->
+        <!-- <li class="nav-item relative">
+                    <a href="">All Categories</a>
+                    <div class="absolute w-[300px] h-[300px] bg-red-500 z-50"></div>
+                </li> -->
+        <li class="nav-item"><a href="/products">All Products</a></li>
+        <li class="nav-item"><a href="">Electronics</a></li>
+        <li class="nav-item"><a href="">Supermarket</a></li>
+        <li class="nav-item"><a href="">Deals</a></li>
+        <li class="nav-item"><a href="">Beauty & Health</a></li>
+        <li class="nav-item"><a href="">Mobiles</a></li>
+        <li class="nav-item"><a href="/admin/products">Admin Products</a></li>
+        <li class="nav-item"><a href="/admin/products/create">Add Product</a></li>
+        <li class="nav-item"><a href="">About</a></li>
+        <li class="nav-item"><a href="">Contact</a></li>
+    </ul>
+</nav>
+<!--!! Heading navbar end !!-->

@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Shop</title>
+    <link rel="stylesheet" href="./../../public/css/output.css" />
+    <link rel="stylesheet" href="./../../node_modules/@fortawesome/fontawesome-free/css/all.min.css" />
+</head>
+
+<body class="relative bg-slate-50">
+    <!--!! Heading navbar start !!-->
+    <header class="header">
+        <div class="header-upper-container">
+            <div class="upper-wrapper">
+                <h1 class="header-logo">
+                    <a href="/" class="header-logo-wrapper">
+                        <i class="fa-solid fa-cart-flatbed"></i>
+                        <p>ChicCart</p>
+                    </a>
+                </h1>
+                <!-- navigation end -->
+                <form class="header-search-container">
+                    <i class="fa-solid fa-magnifying-glass header-search-logo"></i>
+                    <input type="text" class="header-search-input" placeholder="Search" />
+                </form>
+                <!-- cart and user controls start -->
+
+                <div class="upper-controls-container">
+                    <div class="upper-control-item group">
+                        <p class="upper-control-item-text">Login</p>
+                        <a href="">
+                            <i class="fa-solid fa-user"></i>
+                        </a>
+                        <!-- scale-0 group-hover:scale-100 -->
+                        <!-- <div
+                                class="user-popup bg-white flex duration-[100ms] transition-transform text-lg flex-col items-center absolute min-w-fit text-blue-500 shadow-md w-fit px-6 left-[-25%] text-center top-[110%] rounded-lg py-2"
+                            >
+                                <p class="w-full"><a class="w-full break-keep" href="">Orders</a></p>
+                                <p class="w-full"><a class="w-full break-keep" href="">Add Product</a></p>
+                                <p class="w-full"><a class="w-full break-keep" href="">Admin Products</a></p>
+                            </div> -->
+                    </div>
+                    <div class="upper-control-item">
+                        <p class="upper-control-item-text">Cart</p>
+                        <a href="" class="relative">
+                            <div class="cart-products-count">
+                                <span class="text-xs text-center">99+</span>
+                            </div>
+                            <i class="fa-solid fa-cart-shopping"></i>
+                        </a>
+                    </div>
+                </div>
+                <!-- cart and user controls end -->
+            </div>
+        </div>
+    </header>
+    <!-- navigation start -->
+    <nav class="navbar">
+        <ul class="navbar-items-container">
+            <!-- <li class="nav-item active-nav"><a href="">Home</a></li> -->
+            <!-- <li class="nav-item relative">
+                    <a href="">All Categories</a>
+                    <div class="absolute w-[300px] h-[300px] bg-red-500 z-50"></div>
+                </li> -->
+            <li class="nav-item"><a href="">All Products</a></li>
+            <li class="nav-item"><a href="">Electronics</a></li>
+            <li class="nav-item"><a href="">Supermarket</a></li>
+            <li class="nav-item"><a href="">Deals</a></li>
+            <li class="nav-item"><a href="">Beauty & Health</a></li>
+            <li class="nav-item"><a href="">Mobiles</a></li>
+            <li class="nav-item"><a href="">Admin Products</a></li>
+            <li class="nav-item"><a href="">Add Product</a></li>
+            <li class="nav-item"><a href="">About</a></li>
+            <li class="nav-item"><a href="">Contact</a></li>
+        </ul>
+    </nav>
+    <!--!! Heading navbar end !!-->
+
+    <!--!! content start !!-->
+    <main class="content justify-center">
+        <form
+            class="login-form bg-white p-5 py-8 rounded-2xl shadow-xl border max-w-[700px] flex gap-3 flex-col w-full">
+            <h1 class="md:text-3xl text-center font-bold text-slate-700 text-xl mb-8">Edit Product</h1>
+            <input type="text" class="form-control" placeholder="Title" />
+            <input class="form-control" type="text" name="image" placeholder="Image URL" />
+            <input class="form-control" type="number" name="price" placeholder="Price" step="0.01" />
+            <textarea class="form-control resize-none min-h-[300px]" name="product-description"
+                placeholder="Description"></textarea>
+            <button class="form-submit" type="submit">Edit Product</button>
+        </form>
+    </main>
+    <!--!! content end !!-->
+    <footer class="footer">
+        <div class="footer-wrapper">
+            <div class="upper-footer-container">
+                <div class="payments-container">
+                    <img src="./../../public/assets/images/paypal.svg" class="w-16" alt="" />
+                    <img src="./../../public/assets/images/mastercard.svg" class="w-14" alt="" />
+                    <img src="./../../public/assets/images/visa.svg" class="w-11" alt="" />
+                    <img src="./../../public/assets/images/amex.svg" class="w-14" alt="" />
+                </div>
+                <ul class="footer-navigation">
+                    <li class="min-w-fit"><a href="#" class="hover:underline hover:font-semibold">Warranty Policy</a>
+                    </li>
+                    <li class="min-w-fit"><a href="#" class="hover:underline hover:font-semibold">Sell with us</a></li>
+                    <li class="min-w-fit"><a href="#" class="hover:underline hover:font-semibold">Terms of Use</a></li>
+                    <li class="min-w-fit"><a href="#" class="hover:underline hover:font-semibold">Terms of Sale</a></li>
+                    <li class="min-w-fit"><a href="#" class="hover:underline hover:font-semibold">Privacy Policy</a>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- copyright section -->
+            <div class="copyright-container">
+                <p>&copy; 2023 ChicCart. All Rights Reserved</p>
+            </div>
+        </div>
+    </footer>
+</body>
+
+</html>

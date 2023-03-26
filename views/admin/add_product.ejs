@@ -1,0 +1,18 @@
+<%- include('./../layouts/main_start.ejs') %>
+<%- include('./../layouts/header.ejs') %>
+<!--!! content start !!-->
+<main class="content justify-center">
+    <form action="/admin/products" method="POST"
+        class="login-form bg-white p-5 py-8 rounded-2xl shadow-xl border max-w-[700px] flex gap-3 flex-col w-full">
+        <h1 class="md:text-3xl text-center font-bold text-slate-700 text-xl mb-8">Add New Product</h1>
+        <input type="text" name="title" class="form-control" placeholder="Title" />
+        <textarea class="form-control resize-none min-h-[300px]" name="images" placeholder="Images"></textarea>
+        <input class="form-control" type="number" name="price" placeholder="Price" step="0.01" />
+        <textarea class="form-control resize-none min-h-[300px]" name="description"
+            placeholder="Description"></textarea>
+        <button class="form-submit" type="submit">Add Product</button>
+    </form>
+</main>
+<!--!! content start !!-->
+<%- include('./../layouts/footer.ejs') %>
+<%- include('./../layouts/main_end.ejs') %>

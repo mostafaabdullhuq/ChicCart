@@ -1,0 +1,134 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: "Poppins", sans-serif;
+}
+body {
+    min-height: 100svh;
+    height: 100svh;
+}
+
+.container {
+    width: 80%;
+    margin: 0 auto;
+    padding: 20px;
+    background: #f5f5f5;
+    min-height: calc(100% - 60px);
+    display: flex;
+    align-items: center;
+    /* justify-content: center; */
+    flex-direction: column;
+}
+
+.container h1 {
+    margin-bottom: 20px;
+    padding: 10px;
+}
+
+.products-container {
+    width: 100%;
+    height: 100%;
+    display: grid;
+    gap: 10px;
+    grid-template-columns: repeat(3, 1fr);
+    grid-auto-rows: minmax(200px, auto);
+}
+
+.product {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    border: 1px solid rgb(162, 162, 162);
+    border-radius: 10px;
+    -webkit-border-radius: 10px;
+    -moz-border-radius: 10px;
+    -ms-border-radius: 10px;
+    background-color: ghostwhite;
+
+    -o-border-radius: 10px;
+}
+
+.product .product-name {
+    padding: 20px;
+    text-align: center;
+    font-size: 1.3rem;
+}
+.product .product-image {
+    object-fit: cover;
+    width: 100%;
+    height: 100%;
+}
+
+.product .product-price {
+    padding: 15px;
+    font-size: 1.5rem;
+    font-weight: bold;
+    text-align: center;
+}
+
+.nav {
+    width: 100%;
+    background-color: #d83a3a;
+    color: white;
+    padding: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.nav ul {
+    display: flex;
+    list-style: none;
+    gap: 10px;
+    color: white;
+}
+
+.nav ul li a {
+    color: white;
+    text-decoration: none;
+}
+.nav ul li a:hover {
+    text-decoration: underline;
+}
+
+.add-product {
+    width: 100%;
+    height: 90%;
+    display: flex;
+    gap: 10px;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.add-product * {
+    width: 100%;
+    max-width: 500px;
+    padding: 20px;
+    outline: none;
+    border-radius: 10px;
+    -webkit-border-radius: 10px;
+    -moz-border-radius: 10px;
+    -ms-border-radius: 10px;
+    -o-border-radius: 10px;
+    border: 1px solid #d3d3d3;
+    font-size: 1rem;
+}
+
+.add-product button {
+    background: #f64848;
+    text-transform: uppercase;
+    color: white;
+    font-weight: 500;
+
+    cursor: pointer;
+    transition: all 0.3s ease;
+    -webkit-transition: all 0.3s ease;
+    -moz-transition: all 0.3s ease;
+    -ms-transition: all 0.3s ease;
+    -o-transition: all 0.3s ease;
+}
+.add-product button:hover {
+    background: #d83a3a;
+}

@@ -1,0 +1,62 @@
+<%- include('./../layouts/main_start.ejs') %>
+<%- include('./../layouts/header.ejs') %>
+<!--!! content start !!-->
+<main class="content">
+    <!--!! website products start !!-->
+    <section class="products">
+        <form action="" class="w-full flex justify-end px-4 py-2">
+            <select name="sort" id=""
+                class="p-2 py-3 rounded-md border border-gray-300 px-4 text-md bg-gray-100 text-slate-600 outline-blue-500 font-[450]">
+                <option class="cursor-pointer" value="0" selected disabled>Sort by</option>
+                <option class="cursor-pointer" value="1">Name</option>
+                <option class="cursor-pointer" value="1">Price: Low to High</option>
+                <option class="cursor-pointer" value="1">Price: High to Low</option>
+                <option class="cursor-pointer" value="1">Customer Review</option>
+                <option class="cursor-pointer" value="1">Newest Arrivals</option>
+            </select>
+        </form>
+        <% if (products.length) {%>
+        <div class="products-container">
+            <% for (let product of products) { %>
+            <!-- product start -->
+            <div class="product " id="product-<%= product.id %>">
+                <a href="/product/<%= product.id %>" class=" absolute inset-0"></a>
+                <div class="product-image-container group">
+                    <div class="product-overlay">
+                        <form action="/cart" method="post">
+                            <input type="hidden" name="quantity" value="1">
+                            <input type="hidden" name="id" value="<%= product.id %>">
+                            <button type="submit" class="product-add-to-cart">
+                                <i class="fa-solid fa-cart-plus"></i>
+                            </button>
+                        </form>
+                    </div>
+                    <img src="<%= product.images[0] %>" alt="" class="product-image" />
+                </div>
+                <a href="/product/<%= product.id %>" class="product-title "><%= product.title %></a>
+                <div class="product-info">
+                    <div class="product-price">$<%= product.price %></div>
+                    <div class="product-rating">
+                        <% for (let i = 0; i < 5; i++) { %>
+                        <% if (i < Number(String(product.rating).split('.')[0])) { %>
+                        <i class="fa-solid fa-star"></i>
+                        <% } else if (i === Number(String(product.rating).split('.')[0]) && Number(String(product.rating).split('.')[1]) ) { %>
+                        <i class="fa-solid fa-star-half-stroke"></i> <% } else { %>
+                        <i class="fa-regular fa-star"></i>
+                        <% } %>
+                        <% } %>
+                    </div>
+                </div>
+            </div>
+            <!-- product end -->
+            <% } %>
+        </div>
+        <% } else {%>
+        <div class="text-xl my-10">There's No Products to show.</div>
+        <% } %>
+    </section>
+    <!--!! website products end !!-->
+</main>
+<!--!! content end !!-->
+<%- include('./../layouts/footer.ejs') %>
+<%- include('./../layouts/main_end.ejs') %>
