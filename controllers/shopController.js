@@ -5,30 +5,35 @@ const VIEW_PREFIX = "shop/";
 const Cart = require("./../models/cart");
 
 // HOMEPAGE
-exports.getIndex = (req, res, next) => {
+exports.getIndex = async (req, res, next) => {
     res.render("index", {
-        products: Product.getNewestProducts(6),
+        newestProducts: await Product.getAllProducts((sortType = "newest"), (limit = 20)),
+        topRatedProducts: await Product.getAllProducts((sortType = "rating"), (limit = 20)),
         pageTitle: "ChicCart",
+        path: "index",
     });
 };
 
 // PRODUCTS PAGE
-exports.getProducts = (req, res, next) => {
+exports.getProducts = async (req, res, next) => {
     res.render(`${VIEW_PREFIX}products`, {
-        products: Product.getAllProducts(),
+        products: await Product.getAllProducts(),
         pageTitle: "Shop",
+        path: "all_products",
     });
 };
 
 // PRODUCT DETAILS PAGE
-exports.getProduct = (req, res, next) => {
+exports.getProduct = async (req, res, next) => {
     const productID = +req.params.id;
     if (productID) {
-        let product = Product.getProduct(productID);
+        let product = await Product.getProduct(productID);
         if (product) {
+            product.images = product.images.split(","); // CONVERT COMMA SEPARATED IMAGES INTO ARRAY
             res.render(`${VIEW_PREFIX}product_details`, {
                 product: product,
                 pageTitle: "Shop",
+                path: "product_details",
             });
         } else {
             res.redirect("/products");
@@ -47,6 +52,7 @@ exports.getCart = (req, res, next) => {
         shipping: shippingCost,
         items: Cart.itemsCount(),
         pageTitle: "Your Cart",
+        path: null,
     });
 };
 
@@ -68,10 +74,11 @@ exports.postCart = (req, res, next) => {
 };
 
 // CHECKOUT PAGE
-exports.getCheckout = (req, res, next) => {
+exports.getCheckout = async (req, res, next) => {
     res.render(`${VIEW_PREFIX}checkout`, {
-        products: Product.getAllProducts(),
+        products: await Product.getAllProducts(),
         pageTitle: "Confirm Order",
+        path: null,
     });
 };
 

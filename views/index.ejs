@@ -64,51 +64,116 @@
         </div>
     </section>
     <!--!! website intro end !!-->
-    <!--!! website products start !!-->
-    <% if (products.length) {  %>
+    <!--!! newest arrivals products start !!-->
+    <% if (newestProducts.length) {  %>
     <section class="products">
-        <h1 class="text-2xl font-bold p-6  w-full text-center md:text-start">Newest Arrivals</h1>
-        <div class="products-container">
-            <% for (let product of products) { %>
-            <!-- product start -->
-            <div class="product" id="product-<%=product.id%>">
-                <a href="/product/<%= product.id %>" class=" absolute inset-0"></a>
-
-                <div class="product-image-container group">
-                    <div class="product-overlay">
-                        <form action="/cart" method="post">
-                            <input type="hidden" name="quantity" value="1">
-                            <input type="hidden" name="id" value="<%= product.id %>">
-                            <button type="submit" class="product-add-to-cart">
-                                <i class="fa-solid fa-cart-plus"></i>
-                            </button>
-                        </form>
-                    </div>
-                    <img src="<%=product.images[0]%>" alt="" class="product-image" />
+        <h1 class="home-section-heading mt-4">Newest Arrivals</h1>
+        <div class="home-products-wrapper">
+            <div class="prods-nav absolute w-full inset-0">
+                <div class="prods-nav-prev">
+                    <i class="fa-solid fa-chevron-left"></i>
                 </div>
-                <p class="product-title">
-                    <a href="/product/<%=product.id%>"><%=product.title%></a>
-                </p>
-                <div class="product-info">
-                    <div class="product-price">$<%=product.price%></div>
-                    <div class="product-rating">
-                        <% for (let i = 0; i < 5; i++) { %>
-                        <% if (i < Number(String(product.rating).split('.')[0])) { %>
-                        <i class="fa-solid fa-star"></i>
-                        <% } else if (i === Number(String(product.rating).split('.')[0]) && Number(String(product.rating).split('.')[1]) ) { %>
-                        <i class="fa-solid fa-star-half-stroke"></i> <% } else { %>
-                        <i class="fa-regular fa-star"></i>
-                        <% } %>
-                        <% } %>
-                    </div>
+                <div class="prods-nav-next ">
+                    <i class="fa-solid fa-chevron-right"></i>
                 </div>
             </div>
-            <!-- product end -->
-            <%}%>
+            <div class="home-products-container snap-x ">
+                <% for (let product of newestProducts) { %>
+                <!-- product start -->
+                <div class="home-product snap-center" id="product-<%=product.id%>">
+                    <a href="/product/<%= product.id %>" class=" absolute inset-0"></a>
+
+                    <div class="product-image-container group">
+                        <div class="product-overlay">
+                            <form action="/cart" method="post">
+                                <input type="hidden" name="quantity" value="1">
+                                <input type="hidden" name="id" value="<%= product.id %>">
+                                <button type="submit" class="product-add-to-cart">
+                                    <i class="fa-solid fa-cart-plus"></i>
+                                </button>
+                            </form>
+                        </div>
+                        <img src="<%= product.images.split(',')[0] %>" alt="" class="product-image" />
                     </div>
+                    <p class="product-title">
+                        <a href="/product/<%=product.id%>"><%=product.title%></a>
+                    </p>
+                    <div class="product-info">
+                        <div class="product-price">$<%=product.price.toFixed(2).replace('.00','') %></div>
+                        <div class="product-rating">
+                            <% for (let i = 0; i < 5; i++) { %>
+                            <% if (i < Number(String(product.rating).split('.')[0])) { %>
+                            <i class="fa-solid fa-star"></i>
+                            <% } else if (i === Number(String(product.rating).split('.')[0]) && Number(String(product.rating).split('.')[1]) ) { %>
+                            <i class="fa-solid fa-star-half-stroke"></i> <% } else { %>
+                            <i class="fa-regular fa-star"></i>
+                            <% } %>
+                            <% } %>
+                        </div>
+                    </div>
+                </div>
+                <!-- product end -->
+                <%}%>
+        </div>
+        </div>
     </section>
     <%} %>
-            <!--!! website products end !!-->
+                <!--!! newest arrivals products end !!-->
+                <!--!! top rated products start !!-->
+                <% if (topRatedProducts.length) {  %>
+                <section class="products">
+                    <h1 class="home-section-heading">Top Rated</h1>
+                    <div class="home-products-wrapper">
+                        <div class="prods-nav  absolute w-full inset-0">
+                            <div class="prods-nav-prev">
+                                <i class="fa-solid fa-chevron-left"></i>
+                            </div>
+                            <div class="prods-nav-next ">
+                                <i class="fa-solid fa-chevron-right"></i>
+                            </div>
+                        </div>
+                        <div class="home-products-container snap-x ">
+                            <% for (let product of topRatedProducts) { %>
+                            <!-- product start -->
+                            <div class="home-product snap-center" id="product-<%=product.id%>">
+                                <a href="/product/<%= product.id %>" class=" absolute inset-0"></a>
+
+                                <div class="product-image-container group">
+                                    <div class="product-overlay">
+                                        <form action="/cart" method="post">
+                                            <input type="hidden" name="quantity" value="1">
+                                            <input type="hidden" name="id" value="<%= product.id %>">
+                                            <button type="submit" class="product-add-to-cart">
+                                                <i class="fa-solid fa-cart-plus"></i>
+                                            </button>
+                                        </form>
+                                    </div>
+                                    <img src="<%= product.images.split(',')[0] %>" alt="" class="product-image" />
+                                </div>
+                                <p class="product-title">
+                                    <a href="/product/<%=product.id%>"><%=product.title%></a>
+                                </p>
+                                <div class="product-info">
+                                    <div class="product-price">$<%=product.price.toFixed(2).replace('.00','') %></div>
+                                    <div class="product-rating">
+                                        <% for (let i = 0; i < 5; i++) { %>
+                                        <% if (i < Number(String(product.rating).split('.')[0])) { %>
+                                        <i class="fa-solid fa-star"></i>
+                                        <% } else if (i === Number(String(product.rating).split('.')[0]) && Number(String(product.rating).split('.')[1]) ) { %>
+                                        <i class="fa-solid fa-star-half-stroke"></i> <% } else { %>
+                                        <i class="fa-regular fa-star"></i>
+                                        <% } %>
+                                        <% } %>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- product end -->
+                            <%}%>
+        </div>
+        </div>
+    </section>
+    <%} %>
+                            <!--!! top rated products end !!-->
 </main>
 <!--!! content start !!-->
 <%- include('./layouts/footer.ejs') %>
@@ -123,5 +188,70 @@
         activeItem = activeItem++ == carouselItems.length - 1 ? 0 : activeItem++;
         carouselItems[activeItem].classList.add("carousel-item-active");
     }, 5000);
+</script>
+
+
+<!-- script for products horizontal navigation -->
+<script>
+    let prodsNavNext = document.querySelectorAll('.prods-nav-next'),
+        prodsNavPrev = document.querySelectorAll('.prods-nav-prev'),
+        productsContainers = document.querySelectorAll('.home-products-container');
+    window.addEventListener("resize", _ => {
+        productsContainers.forEach(productsContainer => {
+            if (productsContainer.scrollWidth > productsContainer.clientWidth) {
+                productsContainer.scrollLeft = 0
+                productsContainer.parentElement.querySelector(".prods-nav-next").classList.add("active")
+                productsContainer.parentElement.querySelector(".prods-nav-prev").classList.add("active")
+            } else {
+                productsContainer.parentElement.querySelector(".prods-nav-next").classList.remove(
+                    "active")
+                productsContainer.parentElement.querySelector(".prods-nav-prev").classList.remove(
+                    "active")
+
+            }
+        })
+    })
+
+    window.addEventListener("DOMContentLoaded", _ => {
+        productsContainers.forEach(productsContainer => {
+            if (productsContainer.scrollWidth > productsContainer.clientWidth) {
+                productsContainer.scrollLeft = 0
+                productsContainer.parentElement.querySelector(".prods-nav-next").classList.add("active")
+                productsContainer.parentElement.querySelector(".prods-nav-prev").classList.add("active")
+            } else {
+                productsContainer.parentElement.querySelector(".prods-nav-next").classList.remove(
+                    "active")
+                productsContainer.parentElement.querySelector(".prods-nav-prev").classList.remove(
+                    "active")
+
+            }
+        })
+
+    })
+
+
+
+    // FUNCTION TO SCROLL LEFT OR RIGHT INTO THE PRODUCTS CONTAINER WHEN NEXT OR PREV BUTTONS CLICKED
+    function handleScroll(type, event) {
+        let parentWrapper = event.target.closest('.home-products-wrapper'),
+            productsContainer = parentWrapper.querySelector(".home-products-container"),
+            productWidth = parentWrapper.querySelector(".home-product").getClientRects()[0].width
+        // SCROLL INTO THE PRODUCTS CONTAINER BY THE WIDTH OF THE PRODUCT DEPENDING ON THE BUTTON CLICKED
+        type === 1 ? productsContainer.scrollLeft += productWidth : productsContainer.scrollLeft -= productWidth
+    }
+
+    // WHEN NEXT BUTTON CLICKED
+    prodsNavNext.forEach(prodNavNext => {
+        prodNavNext.addEventListener('click', (event) => {
+            handleScroll(1, event)
+        })
+    })
+
+    // WHEN PREVIOUS BUTTON CLICKED
+    prodsNavPrev.forEach(prodNavPrev => {
+        prodNavPrev.addEventListener('click', (event) => {
+            handleScroll(2, event)
+        })
+    })
 </script>
 <%- include('./layouts/main_end.ejs') %>

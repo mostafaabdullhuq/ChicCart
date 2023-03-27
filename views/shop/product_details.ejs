@@ -24,7 +24,7 @@
             <h1 class="product-details-title"><%= product.title %></h1>
             <!-- product rating and price -->
             <div class="product-details-price-rating">
-                <p class="product-details-price">$<%= product.price %></p>
+                <p class="product-details-price">$<%= product.price.toFixed(2).replace('.00','') %></p>
                 <div class="flex gap-2 items-center">
                     <div class="product-rating">
                         <% for (let i = 0; i < 5; i++) { %>

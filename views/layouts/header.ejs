@@ -47,19 +47,18 @@
 <!-- navigation start -->
 <nav class="navbar">
     <ul class="navbar-items-container">
-        <!-- <li class="nav-item active-nav"><a href="">Home</a></li> -->
-        <!-- <li class="nav-item relative">
-                    <a href="">All Categories</a>
-                    <div class="absolute w-[300px] h-[300px] bg-red-500 z-50"></div>
-                </li> -->
-        <li class="nav-item"><a href="/products">All Products</a></li>
-        <li class="nav-item"><a href="">Electronics</a></li>
-        <li class="nav-item"><a href="">Supermarket</a></li>
-        <li class="nav-item"><a href="">Deals</a></li>
-        <li class="nav-item"><a href="">Beauty & Health</a></li>
-        <li class="nav-item"><a href="">Mobiles</a></li>
-        <li class="nav-item"><a href="/admin/products">Admin Products</a></li>
-        <li class="nav-item"><a href="/admin/products/create">Add Product</a></li>
+        <li class="nav-item <%=  path == 'index' ? 'nav-item-active' : ''  %>"><a href="/">Home</a></li>
+        <li class="nav-item <%=  path == 'all_products' ? 'nav-item-active' : ''  %>"><a href="/products">All
+                Products</a></li>
+        <li class="nav-item"><a href="/products">Electronics</a></li>
+        <li class="nav-item"><a href="/products">Supermarket</a></li>
+        <li class="nav-item"><a href="/products">Deals</a></li>
+        <li class="nav-item"><a href="/products">Beauty & Health</a></li>
+        <li class="nav-item"><a href="/products">Mobiles</a></li>
+        <li class="nav-item <%=  path == 'admin_products' ? 'nav-item-active' : ''  %>"><a href="/admin/products">Admin
+                Products</a></li>
+        <li class="nav-item <%=  path == 'add_product' ? 'nav-item-active' : ''  %>"><a
+                href="/admin/products/create">Add Product</a></li>
         <li class="nav-item"><a href="">About</a></li>
         <li class="nav-item"><a href="">Contact</a></li>
     </ul>

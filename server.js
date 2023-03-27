@@ -4,8 +4,10 @@ const adminRoutes = require("./routes/admin");
 const shopRoutes = require("./routes/shop");
 const authRoutes = require("./routes/auth");
 const path = require("path");
-const app = express();
 const errorController = require("./controllers/errorController");
+const db = require("./database/database");
+
+const app = express();
 
 app.set("view engine", "ejs");
 app.set("views", "views");
