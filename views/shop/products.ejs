@@ -7,8 +7,7 @@
         <form action="" class="w-full flex justify-end px-4 py-2">
             <select name="sort" id=""
                 class="p-2 py-3 rounded-md border border-gray-300 px-4 text-md bg-gray-100 text-slate-600 outline-blue-500 font-[450]">
-                <option class="cursor-pointer" value="0" selected disabled>Sort by</option>
-                <option class="cursor-pointer" value="1">Name</option>
+                <option class="cursor-pointer" value="1" selected>Name</option>
                 <option class="cursor-pointer" value="1">Price: Low to High</option>
                 <option class="cursor-pointer" value="1">Price: High to Low</option>
                 <option class="cursor-pointer" value="1">Customer Review</option>
@@ -26,16 +25,17 @@
                         <form action="/cart" method="post">
                             <input type="hidden" name="quantity" value="1">
                             <input type="hidden" name="id" value="<%= product.id %>">
+                            <input type="hidden" name="type" value="1">
                             <button type="submit" class="product-add-to-cart">
                                 <i class="fa-solid fa-cart-plus"></i>
                             </button>
                         </form>
                     </div>
-                    <img src="<%= product.images.split(',')[0] %>" alt="" class="product-image" />
+                    <img src="<%= product.images[0].url %>" alt="" class="product-image" />
                 </div>
                 <a href="/product/<%= product.id %>" class="product-title "><%= product.title %></a>
                 <div class="product-info">
-                    <div class="product-price">$<%= product.price.toFixed(2).replace('.00','') %></div>
+                    <div class="product-price">$<%= product.price.replace('.00','') %></div>
                     <div class="product-rating">
                         <% for (let i = 0; i < 5; i++) { %>
                         <% if (i < Number(String(product.rating).split('.')[0])) { %>

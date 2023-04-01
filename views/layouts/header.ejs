@@ -17,7 +17,7 @@
 
             <div class="upper-controls-container">
                 <div class="upper-control-item group">
-                    <p class="upper-control-item-text">Login</p>
+                    <a href="/login" class="upper-control-item-text"><%= loginUser ? loginUser : 'Login' %></a>
                     <a href="/login" class="upper-control-icon">
                         <i class="fa-solid fa-user"></i>
                     </a>
@@ -37,7 +37,7 @@
                                 </div> -->
                         <i class="fa-solid fa-bag-shopping"></i>
                     </a>
-                    <p class="upper-control-item-text">(0)</p>
+                    <a href="/cart" class="upper-control-item-text">(<%= cartItemsCount %>)</a>
                 </div>
             </div>
             <!-- cart and user controls end -->

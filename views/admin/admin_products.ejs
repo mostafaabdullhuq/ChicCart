@@ -32,11 +32,11 @@
                                 class="fa-solid fa-trash-can"></i>
                         </a>
                     </div>
-                    <img src="<%= product.images.split(',')[0] %>" alt="" class="product-image" />
+                    <img src="<%= product.images? product.images[0]?.url : '' %>" alt="" class="product-image" />
                 </div>
                 <a href="/product/<%= product.id %>" class="product-title "><%= product.title %></a>
                 <div class="product-info">
-                    <div class="product-price">$<%= product.price.toFixed(2).replace(".00","") %></div>
+                    <div class="product-price">$<%= product.price.replace(".00",'') %></div>
                     <div class="product-rating">
                         <% for (let i = 0; i < 5; i++) { %>
                         <% if (i < Number(String(product.rating).split('.')[0])) { %>

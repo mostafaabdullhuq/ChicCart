@@ -11,31 +11,36 @@
             <!-- product info start -->
             <div class="cart-product-info">
                 <div class="cart-product-image-container">
-                    <div class="cart-product-image-wrapper">
-                        <img class="cart-product-image" src="<%= product.images[0] %>" alt="<%= product.title %>" />
+                    <div class="cart-product-image-wrapper relative">
+                        <a class="absolute inset-0" href="/product/<%= product.id %>"></a>
+                        <img class="cart-product-image" src="<%= product.images[0].url %>" alt="<%= product.title %>" />
                     </div>
                 </div>
 
                 <div class="cart-product-info-wrapper">
                     <!-- cart product title start -->
-                    <p class="cart-product-title"><%= product.title %></p>
+                    <a href="/product/<%= product.id %>"
+                        class="cart-product-title hover:underline"><%= product.title %></a>
                     <!-- cart product title end -->
 
                     <div class="cart-product-details">
                         <div class="cart-product-details-wrapper">
                             <!-- product quantity start -->
                             <div class="flex">
-                                <form method="POST" action="/cart/update" class="">
+                                <form method="POST" action="/cart" class="">
                                     <input type="hidden" name="type" value="2">
+                                    <input type="hidden" name="quantity" value="1">
                                     <input type="hidden" name="id" value="<%= product.id %>">
-                                    <button <% if (product.qty <= 1) { %> disabled <% } %> type="submit" class=" 
+                                    <button <% if (product.cartsproduct.quantity <= 1) { %> disabled <% } %>
+                                        type="submit" class=" 
                                         cart-product-qty-control rounded-l-md"> <i
                                             class="fa-solid fa-minus"></i></button>
                                 </form>
-                                <input type="text" value="<%= product.qty %>" name="prod-qty" class="cart-product-qty"
-                                    disabled />
-                                <form method="POST" action="/cart/update" class="">
+                                <input type="text" value="<%= product.cartsproduct.quantity %>" name="prod-qty"
+                                    class="cart-product-qty" disabled />
+                                <form method="POST" action="/cart">
                                     <input type="hidden" name="type" value="1">
+                                    <input type="hidden" name="quantity" value="1">
                                     <input type="hidden" name="id" value="<%= product.id %>">
                                     <button type="submit" class="cart-product-qty-control rounded-r-md"><i
                                             class="fa-solid fa-plus"></i></button>
@@ -44,7 +49,8 @@
                             <!-- product quantity end -->
 
                             <!-- product price start -->
-                            <div class="cart-product-price">$<%= Number(product.price) * Number(product.qty) %></div>
+                            <!-- <div class="cart-product-price">$<%= Number(product.price) * Number(product.qty) %></div> -->
+                            <div class="cart-product-price">$<%= +product.price * product.cartsproduct.quantity %></div>
                             <!-- product price end -->
                         </div>
                     </div>
@@ -68,17 +74,17 @@
         <h1 class="cart-info-title">Order Summary</h1>
         <div class="cart-subtotal-container">
             <p class="cart-info-heading">Subtotal <span class="cart-info-subtitle"> (<%= items %> items)</span></p>
-            <p class="cart-info-price">$<%= total %></p>
+            <p class="cart-info-price">$<%= +total %></p>
         </div>
         <div class="cart-subtotal-container">
             <p class="cart-info-heading">Shipping</p>
             <p class="cart-info-price"><%= shipping ? '$' + shipping : 'Free' %></p>
         </div>
         <!-- <h1 class="cart-info-heading">Promo Code</h1> -->
-        <form action="" class="promo-container">
+        <!-- <form action="" class="promo-container">
             <input type="text" name="promo-code" class="promo-code" placeholder="Promo Code" />
             <button type="submit" class="promo-code-submit">Apply</button>
-        </form>
+        </form> -->
         <div class="cart-subtotal-container">
             <p class="cart-info-total">Total</p>
             <p class="cart-info-total-price">$<%= shipping + total %></p>
@@ -102,9 +108,10 @@
             yet.</p>
     </div>
 
-    <button class="bg-blue-500 p-4 px-8 text-white rounded-md font-semibold hover:bg-blue-600 transition-colors">
-        <a href="/products">Continue Shopping</a>
-    </button>
+    <a href="/products"
+        class="bg-blue-500 p-4 px-8  text-white rounded-md font-semibold hover:bg-blue-600 transition-colors">
+        Continue Shopping
+    </a>
 </main>
 <% } %>
 

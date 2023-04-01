@@ -77,10 +77,11 @@
                     <i class="fa-solid fa-chevron-right"></i>
                 </div>
             </div>
+            <!-- snap-x -->
             <div class="home-products-container snap-x ">
                 <% for (let product of newestProducts) { %>
                 <!-- product start -->
-                <div class="home-product snap-center" id="product-<%=product.id%>">
+                <div class="home-product snap-start" id="product-<%=product.id%>">
                     <a href="/product/<%= product.id %>" class=" absolute inset-0"></a>
 
                     <div class="product-image-container group">
@@ -88,18 +89,19 @@
                             <form action="/cart" method="post">
                                 <input type="hidden" name="quantity" value="1">
                                 <input type="hidden" name="id" value="<%= product.id %>">
+                                <input type="hidden" name="type" value="1">
                                 <button type="submit" class="product-add-to-cart">
                                     <i class="fa-solid fa-cart-plus"></i>
                                 </button>
                             </form>
                         </div>
-                        <img src="<%= product.images.split(',')[0] %>" alt="" class="product-image" />
+                        <img src="<%= product.images[0].url %>" alt="" class="product-image" />
                     </div>
                     <p class="product-title">
                         <a href="/product/<%=product.id%>"><%=product.title%></a>
                     </p>
                     <div class="product-info">
-                        <div class="product-price">$<%=product.price.toFixed(2).replace('.00','') %></div>
+                        <div class="product-price">$<%=product.price.replace('.00','') %></div>
                         <div class="product-rating">
                             <% for (let i = 0; i < 5; i++) { %>
                             <% if (i < Number(String(product.rating).split('.')[0])) { %>
@@ -135,7 +137,7 @@
                         <div class="home-products-container snap-x ">
                             <% for (let product of topRatedProducts) { %>
                             <!-- product start -->
-                            <div class="home-product snap-center" id="product-<%=product.id%>">
+                            <div class="home-product snap-start" id="product-<%=product.id%>">
                                 <a href="/product/<%= product.id %>" class=" absolute inset-0"></a>
 
                                 <div class="product-image-container group">
@@ -143,18 +145,19 @@
                                         <form action="/cart" method="post">
                                             <input type="hidden" name="quantity" value="1">
                                             <input type="hidden" name="id" value="<%= product.id %>">
+                                            <input type="hidden" name="type" value="1">
                                             <button type="submit" class="product-add-to-cart">
                                                 <i class="fa-solid fa-cart-plus"></i>
                                             </button>
                                         </form>
                                     </div>
-                                    <img src="<%= product.images.split(',')[0] %>" alt="" class="product-image" />
+                                    <img src="<%= product.images[0].url %>" alt="" class="product-image" />
                                 </div>
                                 <p class="product-title">
                                     <a href="/product/<%=product.id%>"><%=product.title%></a>
                                 </p>
                                 <div class="product-info">
-                                    <div class="product-price">$<%=product.price.toFixed(2).replace('.00','') %></div>
+                                    <div class="product-price">$<%=product.price.replace('.00','') %></div>
                                     <div class="product-rating">
                                         <% for (let i = 0; i < 5; i++) { %>
                                         <% if (i < Number(String(product.rating).split('.')[0])) { %>
@@ -196,6 +199,9 @@
     let prodsNavNext = document.querySelectorAll('.prods-nav-next'),
         prodsNavPrev = document.querySelectorAll('.prods-nav-prev'),
         productsContainers = document.querySelectorAll('.home-products-container');
+
+
+    // WHEN WINDOW RESIZES CHECK IF NAVIGATION CONTROLS NEEDS TO BE SHOWN
     window.addEventListener("resize", _ => {
         productsContainers.forEach(productsContainer => {
             if (productsContainer.scrollWidth > productsContainer.clientWidth) {
@@ -211,6 +217,8 @@
             }
         })
     })
+
+    // WHEN WINDOW LOADS FOR FIRST TIME CHECK IF THE NAVIGATION CONTROLS NEEDS TO BE SHOWN
 
     window.addEventListener("DOMContentLoaded", _ => {
         productsContainers.forEach(productsContainer => {
@@ -236,8 +244,10 @@
         let parentWrapper = event.target.closest('.home-products-wrapper'),
             productsContainer = parentWrapper.querySelector(".home-products-container"),
             productWidth = parentWrapper.querySelector(".home-product").getClientRects()[0].width
+        productsContainerWidth = productsContainer.getClientRects()[0].width
         // SCROLL INTO THE PRODUCTS CONTAINER BY THE WIDTH OF THE PRODUCT DEPENDING ON THE BUTTON CLICKED
-        type === 1 ? productsContainer.scrollLeft += productWidth : productsContainer.scrollLeft -= productWidth
+        type === 1 ? productsContainer.scrollLeft += productsContainerWidth : productsContainer
+            .scrollLeft -= productsContainerWidth
     }
 
     // WHEN NEXT BUTTON CLICKED
