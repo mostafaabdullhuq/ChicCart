@@ -2,11 +2,11 @@
 <%- include('./../layouts/header.ejs') %>
 <!--!! content start !!-->
 <main class="content justify-center">
-    <form method="post" action="/admin/products/<%= product.id %>"
+    <form method="post" action="/admin/products/<%= product._id %>"
         class="login-form bg-white p-5 py-8 rounded-2xl shadow-xl border max-w-[700px] flex gap-3 flex-col w-full">
         <h1 class="md:text-3xl text-center font-bold text-slate-700 text-xl mb-8">Edit Product</h1>
         <input type="text" class="form-control" name="title" placeholder="Title" value="<%= product.title %>" />
-        <textarea class="form-control resize-none min-h-[300px]" name="images" placeholder="Images"><% for (let image of product.images) { %><%=image.url + '\n' %><%}%>
+        <textarea class="form-control resize-none min-h-[300px]" name="images" placeholder="Images"><% for (let image of product.images) { %><%=image+'\n'%><%}%>
         </textarea>
         <input class="form-control" type="number" name="price" placeholder="Price" step="0.01"
             value="<%= product.price %>" />

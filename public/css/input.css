@@ -189,6 +189,24 @@
     @apply w-full lg:grid-cols-3 xl:grid-cols-4 md:grid-cols-2 grid justify-center;
 }
 
+.upper-bar {
+    @apply flex justify-end w-full px-4 mb-4;
+}
+
+.sort-container {
+    @apply select-none relative cursor-pointer md:max-w-fit w-full flex items-center justify-center gap-4  px-4 py-3 rounded-lg bg-gray-100 border border-gray-200;
+}
+
+.sort-popup {
+    @apply absolute top-[80%] flex scale-0 z-50 transition-transform left-0 right-0 mt-4  shadow-lg  flex-col gap-2 bg-white rounded-lg py-4 px-6 text-lg;
+}
+.sort-popup.active {
+    @apply scale-100;
+}
+.sort-item {
+    @apply hover:text-blue-500 transition-colors;
+}
+
 .product {
     @apply rounded-2xl relative h-fit   hover:bg-gray-100 hover:shadow-sm border border-transparent hover:border-gray-200 p-4 cursor-pointer flex   gap-3 flex-col items-center text-slate-600  transition-all;
 }

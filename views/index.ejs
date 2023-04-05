@@ -81,27 +81,27 @@
             <div class="home-products-container snap-x ">
                 <% for (let product of newestProducts) { %>
                 <!-- product start -->
-                <div class="home-product snap-start" id="product-<%=product.id%>">
-                    <a href="/product/<%= product.id %>" class=" absolute inset-0"></a>
+                <div class="home-product snap-start" id="product-<%=product._id%>">
+                    <a href="/product/<%= product._id %>" class=" absolute inset-0"></a>
 
                     <div class="product-image-container group">
                         <div class="product-overlay">
                             <form action="/cart" method="post">
                                 <input type="hidden" name="quantity" value="1">
-                                <input type="hidden" name="id" value="<%= product.id %>">
+                                <input type="hidden" name="id" value="<%= product._id %>">
                                 <input type="hidden" name="type" value="1">
                                 <button type="submit" class="product-add-to-cart">
                                     <i class="fa-solid fa-cart-plus"></i>
                                 </button>
                             </form>
                         </div>
-                        <img src="<%= product.images[0].url %>" alt="" class="product-image" />
+                        <img src="<%= product.images[0] %>" alt="" class="product-image" />
                     </div>
                     <p class="product-title">
-                        <a href="/product/<%=product.id%>"><%=product.title%></a>
+                        <a href="/product/<%=product._id%>"><%=product.title%></a>
                     </p>
                     <div class="product-info">
-                        <div class="product-price">$<%=product.price.replace('.00','') %></div>
+                        <div class="product-price">$<%=product.price %></div>
                         <div class="product-rating">
                             <% for (let i = 0; i < 5; i++) { %>
                             <% if (i < Number(String(product.rating).split('.')[0])) { %>
@@ -137,27 +137,27 @@
                         <div class="home-products-container snap-x ">
                             <% for (let product of topRatedProducts) { %>
                             <!-- product start -->
-                            <div class="home-product snap-start" id="product-<%=product.id%>">
-                                <a href="/product/<%= product.id %>" class=" absolute inset-0"></a>
+                            <div class="home-product snap-start" id="product-<%=product._id%>">
+                                <a href="/product/<%= product._id %>" class=" absolute inset-0"></a>
 
                                 <div class="product-image-container group">
                                     <div class="product-overlay">
                                         <form action="/cart" method="post">
                                             <input type="hidden" name="quantity" value="1">
-                                            <input type="hidden" name="id" value="<%= product.id %>">
+                                            <input type="hidden" name="id" value="<%= product._id %>">
                                             <input type="hidden" name="type" value="1">
                                             <button type="submit" class="product-add-to-cart">
                                                 <i class="fa-solid fa-cart-plus"></i>
                                             </button>
                                         </form>
                                     </div>
-                                    <img src="<%= product.images[0].url %>" alt="" class="product-image" />
+                                    <img src="<%= product.images[0] %>" alt="" class="product-image" />
                                 </div>
                                 <p class="product-title">
-                                    <a href="/product/<%=product.id%>"><%=product.title%></a>
+                                    <a href="/product/<%=product._id%>"><%=product.title%></a>
                                 </p>
                                 <div class="product-info">
-                                    <div class="product-price">$<%=product.price.replace('.00','') %></div>
+                                    <div class="product-price">$<%=product.price %></div>
                                     <div class="product-rating">
                                         <% for (let i = 0; i < 5; i++) { %>
                                         <% if (i < Number(String(product.rating).split('.')[0])) { %>

@@ -1,9 +1,18 @@
-const { Sequelize } = require("sequelize");
+const { MongoClient } = require("mongodb");
 
-const sequelize = new Sequelize("nodejs_ecommerce", "root", "", {
-    dialect: "mysql",
-    host: "localhost",
-    logging: false,
-});
+let _db;
 
-module.exports = sequelize;
+exports.mongoConnection = MongoClient.connect("mongodb://localhost:27017")
+    .then((connection) => {
+        _db = connection.db("ChicCart");
+    })
+    .catch((err) => {
+        throw err;
+    });
+
+exports.mongoDB = () => {
+    if (_db) {
+        return _db;
+    }
+    return false;
+};

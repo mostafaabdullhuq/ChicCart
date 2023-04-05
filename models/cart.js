@@ -1,27 +1,17 @@
-const sequelize = require("./../database/database");
-const { Sequelize, DataTypes } = require("sequelize");
+const { mongoDB } = require("./../database/database");
 
-const Cart = sequelize.define("cart", {
-    id: {
-        type: DataTypes.INTEGER,
-        primaryKey: true,
-        autoIncrement: true,
-    },
-    totalPrice: {
-        type: DataTypes.DECIMAL(8, 2),
-        allowNull: false,
-        defaultValue: 0,
-    },
-    totalShipping: {
-        type: DataTypes.DECIMAL(8, 2),
-        allowNull: false,
-        defaultValue: 0,
-    },
-    totalItems: {
-        type: DataTypes.INTEGER,
-        allowNull: false,
-        defaultValue: 0,
-    },
-});
+class Cart {
+    constructor(userID, productsCount) {
+        this.userID = userID;
+        this.products = [];
+        this.productsCount = 0;
+        this.totalPrice = 0;
+        this.totalShipping = 0;
+    }
+
+    save() {
+        return mongoDB().collection("carts").insertOne(this);
+    }
+}
 
 module.exports = Cart;
