@@ -1,270 +1,244 @@
-const { ObjectId } = require("mongodb"),
-    { mongoDB } = require("../database/database"),
+const product = require("./product");
+
+const { Schema, model } = require("mongoose"),
+    Types = Schema.Types,
     Product = require("./product");
 
-class User {
-    constructor(firstName, lastName, username, email, password, isAdmin, city, address, postalCode, building, state, phoneNumber, id = null, cart) {
-        this.firstName = firstName;
-        this.lastName = lastName;
-        this.username = username;
-        this.email = email;
-        this.password = password;
-        this.isAdmin = isAdmin;
-        this.city = city;
-        this.address = address;
-        this.postalCode = postalCode;
-        this.building = building;
-        this.state = state;
-        this.phoneNumber = phoneNumber;
-        this._id = id ? new ObjectId(id) : null;
-        this.cart = cart ?? [];
-    }
-
-    save() {
-        return mongoDB().collection("users").insertOne(this);
-    }
-
-    static getUser(userID) {
-        return mongoDB()
-            .collection("users")
-            .findOne({ _id: new ObjectId(userID) });
-    }
-
-    static getAllUsers() {
-        return mongoDB().collection("users").find().toArray();
-    }
-
-    getProducts(sortType = null, limit = null) {
-        let sortOption;
-        switch (sortType) {
-            case "newest":
-                sortOption = { creationAt: -1 };
-                break;
-            case "rating":
-                sortOption = { rating: -1 };
-                break;
-            case "title":
-                sortOption = { title: 1 };
-                break;
-            case "price_h_to_l":
-                sortOption = { price: -1 };
-                break;
-            case "price_l_to_h":
-                sortOption = { price: 1 };
-                break;
-            default:
-                sortOption = { title: 1 };
-                break;
-        }
-        const db = mongoDB();
-        if (+limit) {
-            return db
-                .collection("products")
-                .find({
-                    userID: this._id,
-                })
-                .limit(limit)
-                .sort(sortOption)
-                .toArray();
-        }
-        return db
-            .collection("products")
-            .find({
-                userID: this._id,
-            })
-            .sort(sortOption)
-            .toArray();
-    }
-
-    getProduct(productID) {
-        try {
-            const db = mongoDB();
-            return db
-                .collection("products")
-                .find({
-                    _id: new ObjectId(productID),
-                    userID: this._id,
-                })
-                .next()
-                .then((product) => {
-                    return product;
-                })
-                .catch((err) => {
-                    return false;
-                });
-        } catch (err) {
-            console.log("Cannot get product", err);
-            return false;
-        }
-    }
-
-    updateProduct(product) {
-        try {
-            return mongoDB().collection("products").updateOne(
-                {
-                    _id: product._id,
-                    userID: this._id,
+const UserSchema = new Schema({
+    firstName: {
+        type: String,
+        minLength: 3,
+        required: [true, "First name is required"], // Set a validation message
+        validate: {
+            validator: (value) => {
+                return /^[\p{Letter}\p{Mark}\s]{2,20}$/u.test(value);
+            },
+            message: "Invalid first name format",
+        },
+    },
+    lastName: {
+        type: String,
+        minLength: 3,
+        required: true,
+        validate: {
+            validator: (value) => {
+                return /^[\p{Letter}\p{Mark}\s]{2,20}$/u.test(value);
+            },
+            message: "Invalid last name format",
+        },
+    },
+    username: {
+        type: String,
+        required: true,
+        unique: true,
+        validate: {
+            validator: (value) => {
+                return /^[a-zA-Z]{1}([a-zA-Z0-9_.]){4,16}$/i.test(value);
+            },
+            message: "Username should be at least 5 characters, maximum 16 characters, starts with a letter, and contains only alphanumeric values and _ or .",
+        },
+    },
+    email: {
+        type: String,
+        required: true,
+        unique: true,
+        validate: {
+            validator: (value) => {
+                return /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/i.test(value);
+            },
+            message: "Invalid email address format",
+        },
+    },
+    password: {
+        type: String,
+        required: true,
+        minLength: [6, "Password should be at least 6 characters"],
+        maxLength: [30, "Password should not exceed 30 characters"],
+    },
+    isAdmin: {
+        type: Boolean,
+        default: false,
+    },
+    city: {
+        type: String,
+        validate: {
+            validator: (value) => {
+                return /^[\p{Letter}\p{Mark}\s\d-]{3,20}$/u.test(value);
+            },
+            message: "Invalid city format",
+        },
+    },
+    address: {
+        type: String,
+        validate: {
+            validator: (value) => {
+                return /^[\p{Letter}\p{Mark}\s\d-]{5,100}$/u.test(value);
+            },
+            message: "Invalid street address format",
+        },
+    },
+    postalCode: {
+        type: String,
+        validate: {
+            validator: (value) => {
+                return /^[\p{Letter}\p{Mark}\s\d-]{3,20}$/u.test(value);
+            },
+            message: "Invalid postal code format",
+        },
+    },
+    building: {
+        type: String,
+        validate: {
+            validator: (value) => {
+                return /^[\p{Letter}\p{Mark}\s\d-]{1,10}$/u.test(value);
+            },
+            message: "Invalid building number format.",
+        },
+    },
+    state: {
+        type: String,
+        validate: {
+            validator: (value) => {
+                return /^[\p{Letter}\p{Mark}\s\d-]{3,20}$/u.test(value);
+            },
+            message: "Invalid state format",
+        },
+    },
+    phoneNumber: {
+        type: String,
+        validate: {
+            validator: (value) => {
+                return /^\+?(?:[0-9] ?){6,14}[0-9]$/u.test(value);
+            },
+            message: "Invalid phone number format",
+        },
+    },
+    cart: {
+        type: [
+            {
+                product: {
+                    type: Types.ObjectId,
+                    required: true,
+                    ref: "Product",
                 },
-                {
-                    $set: product,
-                }
-            );
-        } catch (err) {
-            console.log("Cannot get product", err);
-            return false;
-        }
-    }
-
-    deleteProduct(productID) {
-        try {
-            return mongoDB()
-                .collection("products")
-                .deleteOne({
-                    _id: new ObjectId(productID),
-                    userID: this._id,
-                });
-        } catch {
-            return false;
-        }
-    }
-
-    addToCart(productID, quantity = 1) {
-        return mongoDB()
-            .collection("users")
-            .findOne({
-                _id: this._id,
-            })
-            .then((user) => {
-                return user.cart;
-            })
-            .then((cart) => {
-                const productIndex = cart.findIndex((item) => {
-                    return item._id == productID;
-                });
-                // IF PRODUCT ALREADY EXISTS
-                if (productIndex > -1) {
-                    cart[productIndex].quantity += quantity;
-                } else {
-                    cart.push({
-                        _id: new ObjectId(productID),
-                        quantity: quantity,
-                    });
-                }
-                return cart;
-            })
-            .then((newCart) => {
-                this.cart = newCart;
-                return this.updateCart();
-            })
-            .catch((err) => {
-                throw err;
-            });
-    }
-
-    updateCart() {
-        return mongoDB()
-            .collection("users")
-            .updateOne(
-                {
-                    _id: this._id,
+                quantity: {
+                    type: Number,
+                    required: true,
+                    default: 1,
+                    min: 1,
                 },
-                {
-                    $set: {
-                        cart: this.cart,
-                    },
-                }
-            );
-    }
+            },
+        ],
+        default: [],
+    },
+});
 
-    async getCart() {
-        return mongoDB()
-            .collection("users")
-            .findOne({ _id: this._id })
-            .then((user) => {
-                return user.cart;
-            })
-            .then(async (cart) => {
-                this.cart = cart;
-                const detailedCart = {
-                    items: [],
-                    price: 0,
-                    shipping: 0,
-                    itemsCount: 0,
-                };
-                detailedCart.items = await Promise.all(
-                    cart.map(async (cartItem) => {
-                        let detailedProduct = await Product.getProduct(cartItem._id);
-                        detailedProduct.quantity = cartItem.quantity;
-                        delete detailedProduct.userID;
-                        detailedCart.price += detailedProduct.price * detailedProduct.quantity;
-                        detailedCart.shipping += detailedProduct.shippingPrice;
-                        detailedCart.itemsCount += detailedProduct.quantity;
-                        return detailedProduct;
-                    })
-                );
-                return detailedCart;
-            })
-            .catch((err) => {
-                throw err;
+UserSchema.methods.getProducts = function (sortType = null) {
+    switch (sortType) {
+        case "newest":
+            sortOption = { createdAt: -1 };
+            break;
+        case "rating":
+            sortOption = { rating: -1 };
+            break;
+        case "title":
+            sortOption = { title: 1 };
+            break;
+        case "price_h_to_l":
+            sortOption = { price: -1 };
+            break;
+        case "price_l_to_h":
+            sortOption = { price: 1 };
+            break;
+        default:
+            sortOption = { title: 1 };
+            break;
+    }
+    return Product.find({ userID: this._id }).select("-userID").sort(sortOption);
+};
+
+UserSchema.methods.getCart = async function () {
+    return model("User")
+        .findById(this._id)
+        .populate("cart.product")
+        .then((user) => {
+            return user.cart;
+        })
+        .then(async (cart) => {
+            const detailedCart = {
+                items: [],
+                price: 0,
+                shipping: 0,
+                itemsCount: 0,
+            };
+            cart.forEach((item) => {
+                item.product.quantity = item.quantity;
+                detailedCart.items.push(item.product);
+                detailedCart.price += item.product.price * item.quantity;
+                detailedCart.shipping += item.product.shippingPrice;
+                detailedCart.itemsCount += item.quantity;
             });
-    }
+            return detailedCart;
+        })
+        .catch((err) => {
+            throw err;
+        });
+};
 
-    async deleteCartProduct(productID) {
-        return this.getCart()
-            .then((cart) => {
-                this.cart = this.cart.filter((item) => {
-                    return item._id != productID;
+UserSchema.methods.addToCart = async function (productID, quantity = 1) {
+    return model("User")
+        .findOne({
+            _id: this._id,
+        })
+        .then((user) => {
+            return user.cart;
+        })
+        .then((cart) => {
+            const productIndex = cart.findIndex((item) => {
+                return item.product == productID;
+            });
+            // IF PRODUCT ALREADY EXISTS
+            if (productIndex > -1) {
+                cart[productIndex].quantity += quantity;
+            }
+            // IF First time to add product
+            else {
+                cart.push({
+                    product: productID,
+                    quantity: quantity,
                 });
-                return this.cart;
-            })
-            .then((newCart) => {
-                return this.updateCart();
-            })
-            .catch((err) => {
-                throw err;
-            });
-    }
+            }
+            this.cart = cart;
+            return this.save();
+        })
+        .catch((err) => {
+            throw err;
+        });
+};
 
-    clearCart() {
-        this.cart = [];
-        this.updateCart();
-    }
+UserSchema.methods.deleteCartProduct = function (productID) {
+    this.cart = this.cart.filter((item) => {
+        return item.product != productID;
+    });
+    return this.save();
+};
 
-    async calculateCartDiscount(promoCode) {
-        let discountValue = 0;
-        if (promoCode) {
-            return this.getCart()
-                .then((cart) => {
-                    if (promoCode) {
-                        // IF PROMOCODE IS PERCENTAGE
-                        if (promoCode.discountType === 1) {
-                            discountValue = ((cart.price + cart.shipping) * (promoCode.discountValue / 100)).toFixed(2);
-                            if (discountValue > promoCode.maxDiscount) {
-                                discountValue = promoCode.maxDiscount;
-                            }
-                        }
-                        // IF DISCOUNT VALUE BY CURRENCY
-                        else {
-                            discountValue = promoCode.discountValue;
-                        }
-                    }
-                    return +discountValue;
-                })
-                .catch((err) => {
-                    console.log("Cannot calculate cart discount", err);
-                    return discountValue;
-                });
-        } else {
-            return new Promise((res, rej) => {
-                res(discountValue);
-            });
+UserSchema.methods.calculateCartDiscount = function (promoCode, cart) {
+    let discountValue = 0;
+    if (promoCode) {
+        if (promoCode.discountType === 1) {
+            discountValue = ((cart.price + cart.shipping) * (promoCode.discountValue / 100)).toFixed(2);
+            if (discountValue > promoCode.maxDiscount) {
+                discountValue = promoCode.maxDiscount;
+            }
+        }
+        // IF DISCOUNT VALUE BY CURRENCY
+        else {
+            discountValue = promoCode.discountValue;
         }
     }
 
-    createOrder(order) {
-        order.userID = this._id;
-        return mongoDB().collection("orders").insertOne(order);
-    }
-}
+    return +discountValue;
+};
 
-module.exports = User;
+module.exports = model("User", UserSchema);

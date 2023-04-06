@@ -1,97 +1,73 @@
-const { ObjectId } = require("mongodb"),
-    { mongoDB } = require("./../database/database"),
+const { Schema, model } = require("mongoose"),
+    Types = Schema.Types,
     fs = require("fs"),
-    path = require("path");
+    { join } = require("path");
 
-class Product {
-    constructor(title, price, shippingPrice, description, images, userID, id = null) {
-        this.title = title;
-        this.price = price;
-        this.shippingPrice = shippingPrice;
-        this.description = description;
-        this.images = images;
-        this.rating = 0;
-        this.userID = userID;
-        this._id = id ? new ObjectId(id) : null;
+const ProductSchema = new Schema({
+    //_id Will Be Created Automatically
+
+    title: {
+        type: Types.String,
+        required: true,
+        trim: true, // Remove whitespace from start and end
+        maxLength: 250, // Maximum length for string
+    },
+    price: {
+        type: Types.Number,
+        required: true,
+        min: 0, // Minimum value
+    },
+    shippingPrice: {
+        type: Types.Number,
+        required: true,
+        default: 0, // set default value
+        min: 0,
+    },
+    description: {
+        type: Types.String,
+        required: true,
+        trim: true,
+        maxLength: 2000,
+    },
+    images: {
+        type: [Types.String], // Array of strings
+        required: true,
+    },
+    rating: {
+        type: Types.Number,
+        default: 0,
+        min: 0,
+        max: 5,
+    },
+    createdAt: {
+        type: Date,
+        default: Date.now, // We Can Use Default javaScript Data types also
+    },
+    updatedAt: {
+        type: Date,
+        default: Date.now,
+    },
+    userID: {
+        type: Types.ObjectId,
+        required: true,
+        ref: "User",
+    },
+});
+
+// static function on product module that loads a specific number of products from products json file and return them as array
+ProductSchema.statics.generateProducts = function (prodsNo = null) {
+    let products;
+    try {
+        products = fs.readFileSync(join(__dirname, "..", "database", "products.json"));
+    } catch (err) {
+        products = [];
     }
 
-    save() {
-        if (this.userID) {
-            this.creationAt = new Date().toISOString();
-            this.updatedAt = new Date().toISOString();
-            return mongoDB().collection("products").insertOne(this);
-        } else {
-            return new Promise((res, rej) => {
-                rej("User id should be specified.");
-            });
-        }
+    if (products) {
+        products = JSON.parse(products).slice(0, prodsNo > products.length ? products.length : prodsNo ?? products.length);
+        return products;
     }
+    return [];
+};
 
-    static getAllProducts(sortType = null, limit = null) {
-        let sortOption;
-        switch (sortType) {
-            case "newest":
-                sortOption = { creationAt: -1 };
-                break;
-            case "rating":
-                sortOption = { rating: -1 };
-                break;
-            case "title":
-                sortOption = { title: 1 };
-                break;
-            case "price_h_to_l":
-                sortOption = { price: -1 };
-                break;
-            case "price_l_to_h":
-                sortOption = { price: 1 };
-                break;
-            default:
-                sortOption = { title: 1 };
-                break;
-        }
-        const db = mongoDB();
-        if (+limit) {
-            return db.collection("products").find().limit(limit).sort(sortOption).toArray();
-        }
-        return db.collection("products").find().sort(sortOption).toArray();
-    }
-
-    static getProduct(productID) {
-        try {
-            const db = mongoDB();
-            return db
-                .collection("products")
-                .find({
-                    _id: new ObjectId(productID),
-                })
-                .next()
-                .then((product) => {
-                    return product;
-                })
-                .catch((err) => {
-                    return false;
-                });
-        } catch (err) {
-            console.log("Cannot get product", err);
-            return false;
-        }
-    }
-
-    static generateProducts(userID) {
-        let products = fs.readFileSync(path.join(__dirname, "..", "database", "products.json"));
-        if (products) {
-            products = JSON.parse(products);
-            products.map((product) => {
-                product.shippingPrice = +(Math.random() * 100).toFixed(2);
-                product.userID = userID;
-                delete product.id;
-                return product;
-            });
-            const db = mongoDB();
-            return db.collection("products").insertMany(products);
-        }
-        return false;
-    }
-}
-
-module.exports = Product;
+module.exports = model("Product", ProductSchema);

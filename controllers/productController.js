@@ -4,10 +4,18 @@ const Product = require("../models/product"),
 // HOMEPAGE
 exports.getIndex = (req, res, next) => {
     const productsLimit = 20;
-    Product.getAllProducts("newest", productsLimit)
+    Product.find()
+        .sort({
+            createdAt: -1,
+        })
+        .limit(productsLimit)
         .then((dateResult) => {
             newestProducts = dateResult;
-            return Product.getAllProducts("rating", productsLimit);
+            return Product.find()
+                .sort({
+                    rating: -1,
+                })
+                .limit(productsLimit);
         })
         .then((ratingResult) => {
             res.render("index", {
@@ -25,29 +33,37 @@ exports.getIndex = (req, res, next) => {
 
 // PRODUCTS PAGE
 exports.getProducts = (req, res, next) => {
-    const sortType = req?.query?.sort;
+    const reqSortType = req?.query?.sort;
+    let sortType;
     let sortOption;
-    switch (sortType) {
+    switch (reqSortType) {
         case "newest":
             sortOption = "Newest Arrivals";
+            sortType = { createdAt: -1 };
             break;
         case "rating":
             sortOption = "Customer Reviews";
+            sortType = { rating: -1 };
             break;
         case "title":
             sortOption = "Product Name";
+            sortType = { title: 1 };
             break;
         case "price_h_to_l":
             sortOption = "Price: High to Low";
+            sortType = { price: -1 };
             break;
         case "price_l_to_h":
             sortOption = "Price: Low to High";
+            sortType = { price: 1 };
             break;
         default:
             sortOption = "Product Name";
+            sortType = { title: 1 };
             break;
     }
-    Product.getAllProducts(sortType)
+    Product.find()
+        .sort(sortType)
         .then((products) => {
             res.render(`${VIEW_PREFIX}products`, {
                 products: products,
@@ -66,7 +82,7 @@ exports.getProducts = (req, res, next) => {
 exports.getProduct = async (req, res, next) => {
     const productID = req.params.id;
     if (productID) {
-        Product.getProduct(productID)
+        Product.findById(productID)
             .then((product) => {
                 product
                     ? res.render(`${VIEW_PREFIX}product_details`, {

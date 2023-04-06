@@ -28,7 +28,7 @@ exports.postCart = (req, res, next) => {
         productQty = operationType === 1 ? productQty : productQty * -1;
         req.user
             .addToCart(productID, productQty)
-            .then((cart) => {
+            .then((user) => {
                 if (req.headers.referer === req.headers.origin + "/checkout") {
                     res.redirect("/checkout");
                 } else {
@@ -49,6 +49,7 @@ exports.getDeleteCart = (req, res, next) => {
     req.user
         .deleteCartProduct(productID)
         .then((result) => {
+            console.log(result);
             if (req.headers.referer === req.headers.origin + "/checkout") {
                 res.redirect("/checkout");
             } else {

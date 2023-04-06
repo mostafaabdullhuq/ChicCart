@@ -19,14 +19,22 @@ exports.postAddProduct = (req, res, next) => {
         price = +req.body.price,
         shippingPrice = +req.body.shippingPrice,
         description = req.body.description,
-        images = req.body.images,
-        userID = req.user._id;
-    if (title && price && shippingPrice && description && images && userID) {
-        let product = new Product(title, price, shippingPrice, description, images.split("\n"), userID);
+        images = req.body.images;
+    if (title && price && shippingPrice && description && images) {
+        let product = new Product({
+            title: title,
+            description: description,
+            price: price,
+            shippingPrice: shippingPrice,
+            images: images.split("\n"),
+            userID: req.user,
+        });
         product
             .save()
-            .then((result) => {
-                res.redirect("/admin/products/create");
+            .then((createdProduct) => {
+                if (createdProduct) {
+                    res.redirect("/admin/products/create");
+                }
             })
             .catch((err) => {
                 console.log("Cannot add product", err);
@@ -78,9 +86,11 @@ exports.getAdminProducts = async (req, res, next) => {
 
 exports.getEditProduct = async (req, res, next) => {
     const productID = req.params.id;
-    if (productID)
-        req.user
-            .getProduct(productID)
+    if (productID) {
+        Product.findOne({
+            _id: productID,
+            userID: req.user._id,
+        })
             .then((product) => {
                 if (product)
                     res.render(`${VIEW_PREFIX}edit_product`, {
@@ -91,10 +101,10 @@ exports.getEditProduct = async (req, res, next) => {
                 else res.redirect("/admin/products/create");
             })
             .catch((err) => {
-                console.log("error getting product");
+                console.log("Cannot get product", err);
                 res.redirect("/admin/products");
             });
-    else res.redirect("/admin/products");
+    } else res.redirect("/admin/products");
 };
 
 exports.postEditProduct = async (req, res, next) => {
@@ -103,22 +113,23 @@ exports.postEditProduct = async (req, res, next) => {
         price = +req.body.price,
         shippingPrice = +req.body.shippingPrice,
         description = req.body.description,
-        images = req.body.images?.trim()?.split("\n"),
-        userID = req.user._id;
-    if (title && price && shippingPrice && description && images && productID && userID) {
-        const product = new Product(title, price, shippingPrice, description, images, userID, productID);
-        req.user
-            .updateProduct(product)
+        images = req.body.images?.trim()?.split("\n");
+    if (title && price && shippingPrice && description && images && productID) {
+        Product.findOne({
+            _id: productID,
+            userID: req.user._id,
+        })
             .then((product) => {
-                console.log(product);
-                if (product && product?.acknowledged) {
-                    res.redirect(`/product/${productID}`);
-                } else {
-                    res.redirect(`/admin/products/${productID}/edit`);
-                }
+                product.title = title;
+                product.price = price;
+                product.shippingPrice = shippingPrice;
+                product.description = description;
+                product.images = images;
+                product.save();
+                res.redirect(`/product/${product._id}`);
             })
             .catch((err) => {
-                console.log("Cannot update product", err);
+                console.log("Cannot edit product", err);
                 res.redirect(`/admin/products/${productID}/edit`);
             });
     } else {
@@ -129,13 +140,17 @@ exports.postEditProduct = async (req, res, next) => {
 exports.getDeleteProduct = async (req, res, next) => {
     const productID = req.params.id;
     if (productID) {
-        req.user
-            .deleteProduct(productID)
+        Product.findOneAndDelete({
+            _id: productID,
+            userID: req.user._id,
+        })
             .then((deleteResult) => {
+                console.log(deleteResult);
                 res.redirect("/admin/products");
             })
             .catch((err) => {
-                console.log("error deleting product", err);
+                console.log("Cannot delete product", err);
+                res.redirect("/admin/products");
             });
     }
 };
