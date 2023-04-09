@@ -6,6 +6,8 @@
         <div class="checkout-section-wrapper">
             <h1 class="checkout-section-title">Shipping Details</h1>
             <form class="checkout-section" id="checkoutForm" action="/order/create" method="POST">
+                <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+
                 <div class="checkout-form-row">
                     <div class="checkout-form-control-container w-1/2">
                         <label for="firstName">First Name</label>
@@ -112,6 +114,8 @@
                                     <!-- product quantity start -->
                                     <div class="flex">
                                         <form method="POST" action="/cart" class="">
+                                            <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+
                                             <input type="hidden" name="type" value="2">
                                             <input type="hidden" name="quantity" value="1">
                                             <input type="hidden" name="id" value="<%= product._id %>">
@@ -123,6 +127,8 @@
                                         <input type="text" value="<%= product.quantity %>" name="prod-qty"
                                             class="cart-product-qty" disabled />
                                         <form method="POST" action="/cart">
+                                            <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+
                                             <input type="hidden" name="type" value="1">
                                             <input type="hidden" name="quantity" value="1">
                                             <input type="hidden" name="id" value="<%= product._id %>">
@@ -143,6 +149,8 @@
 
                     <!-- product delete start -->
                     <form method="POST" action="/cart/delete" class="cart-product-delete">
+                        <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+
                         <input type="hidden" name="id" value="<%= product._id %>">
                         <button type="submit"> <i class="fa-solid fa-xmark"></i></button>
                     </form>
@@ -173,6 +181,8 @@
         <!-- <h1 class="cart-info-heading">Promo Code</h1> -->
         <form action="<% if (promoCode) { %>/promocode/remove<% } else { %>/promocode/add<% } %>"
             class="promo-container" method="post">
+            <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+
             <input type="text" name="promocode" class="promo-code disabled:bg-gray-200 disabled:text-slate-500"
                 placeholder="Promo Code" <% if (promoCode){ %> value="<%= promoCode %>" disabled <% } %> />
             <button type="submit" class="promo-code-submit"><% if(promoCode) { %> Remove <% } else { %> Apply

@@ -96,6 +96,8 @@
             <!-- product price, quantity and add to cart -->
             <form action="/cart" method="post" class="flex gap-2 w-[90%]">
                 <input type="hidden" name="type" value="1">
+                <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+
                 <input type="number" name="quantity"
                     class="border py-3 outline-blue-500 border-gray-300 rounded-md bg-gray-100 px-4 w-[30%] font-semibold"
                     value="1" />

@@ -87,6 +87,7 @@
                     <div class="product-image-container group">
                         <div class="product-overlay">
                             <form action="/cart" method="post">
+                                <input type="hidden" name="_csrf" value="<%= csrfToken %>">
                                 <input type="hidden" name="quantity" value="1">
                                 <input type="hidden" name="id" value="<%= product._id %>">
                                 <input type="hidden" name="type" value="1">
@@ -143,6 +144,8 @@
                                 <div class="product-image-container group">
                                     <div class="product-overlay">
                                         <form action="/cart" method="post">
+                                            <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+
                                             <input type="hidden" name="quantity" value="1">
                                             <input type="hidden" name="id" value="<%= product._id %>">
                                             <input type="hidden" name="type" value="1">

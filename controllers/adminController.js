@@ -3,14 +3,10 @@ const Product = require("../models/product"),
 
 // ADD PRODUCT PAGE
 exports.getAddProduct = (req, res, next) => {
-    if (req.user) {
-        res.render(`${VIEW_PREFIX}add_product`, {
-            pageTitle: "Add Product",
-            path: "add_product",
-        });
-    } else {
-        res.redirect("/");
-    }
+    res.render(`${VIEW_PREFIX}add_product`, {
+        pageTitle: "Add Product",
+        path: "add_product",
+    });
 };
 
 // ADD NEW PRODUCT POST REQUEST

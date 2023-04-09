@@ -10,14 +10,16 @@
             </h1>
             <!-- navigation end -->
             <form class="header-search-container">
+                <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+
                 <i class="fa-solid fa-magnifying-glass header-search-logo"></i>
-                <input type="text" class="header-search-input" placeholder="Search" />
+                <input type="text" class="header-search-input" placeholder="Search Products" />
             </form>
             <!-- cart and user controls start -->
 
             <div class="upper-controls-container">
                 <div class="upper-control-item group">
-                    <a href="/login" class="upper-control-item-text"><%= loginUser ? loginUser : 'Login' %></a>
+                    <a href="/login" class="upper-control-item-text"><%= loginUser ? '' : 'Login' %></a>
                     <a href="/login" class="upper-control-icon">
                         <i class="fa-solid fa-user"></i>
                     </a>
@@ -30,11 +32,16 @@
                                 <p class="w-full"><a class="w-full break-keep" href="">Admin Products</a></p>
                             </div> -->
                 </div>
+
+                <% if (loginUser) { %>
+                <div class="upper-control-item">
+                    <a href="/logout" class="relative upper-control-icon">
+                        <i class="fa-solid fa-arrow-right-from-bracket"></i> </a>
+                    <!-- <a href="/logout" class="upper-control-item-text">Logout</a> -->
+                </div>
+                <% } %>
                 <div class="upper-control-item">
                     <a href="/cart" class="relative upper-control-icon">
-                        <!-- <div class="cart-products-count">
-                                    <span class="text-xs text-center">99+</span>
-                                </div> -->
                         <i class="fa-solid fa-bag-shopping"></i>
                     </a>
                     <a href="/cart" class="upper-control-item-text">(<%= cartItemsCount %>)</a>

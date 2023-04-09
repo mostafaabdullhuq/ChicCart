@@ -3,11 +3,20 @@
     class="absolute opacity-70 top-[50%] left-0 right-0 translate-y-[-50%]" alt="" />
 <div class="overlay bg-slate-300 absolute inset-0 bg-opacity-40 backdrop-blur-[2px]"></div>
 <main class="z-10 relative container flex-col gap-8 flex items-center justify-center w-screen h-screen">
-    <form class="login-form bg-white p-5 py-8 rounded-2xl shadow-xl border max-w-[700px] flex gap-3 flex-col w-full">
+    <form method="POST" action="/login"
+        class="login-form bg-white p-5 py-8 rounded-2xl shadow-xl border max-w-[700px] flex gap-3 flex-col w-full">
         <h1 class="md:text-3xl text-center font-bold text-slate-700 text-xl mb-8">Welcome back, Sign in to your
             account.</h1>
-        <input class="form-control" type="email" name="email" id="" placeholder="Email address or Username" />
-        <input class="form-control" type="password" name="password" id="" placeholder="Password" />
+
+        <% if (error.length) { %>
+        <p class="text-center p-3 bg-red-500 text-white rounded-lg text-lg"><%= error[0].error %></p>
+        <% } %>
+
+        <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+        <input class="form-control" type="text" name="username" id="" placeholder="Username" <% if (error.length) { %>
+            value="<%= error[0].data.username %>" <% } %> />
+        <input class="form-control" type="password" name="password" id="" placeholder="Password"
+            <% if (error.length) { %> value="<%= error[0].data.password %>" <% } %> />
         <div class="flex justify-between px-2 mb-5">
             <div class="flex gap-2 items-center">
                 <input id="remember" name="remember" type="checkbox" class="cursor-pointer" />
@@ -19,7 +28,7 @@
         <button class="form-submit" type="submit">Sign in</button>
         <p class="text-center text-slate-800 font-semibold">
             New Customer?
-            <a href="./signup.html" class="underline text-blue-500 font-semibold hover:font-bold">Create account
+            <a href="/signup" class="underline text-blue-500 font-semibold hover:font-bold">Create account
                 now</a>
         </p>
     </form>

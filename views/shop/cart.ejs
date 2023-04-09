@@ -28,6 +28,8 @@
                             <!-- product quantity start -->
                             <div class="flex">
                                 <form method="POST" action="/cart" class="">
+                                    <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+
                                     <input type="hidden" name="type" value="2">
                                     <input type="hidden" name="quantity" value="1">
                                     <input type="hidden" name="id" value="<%= product._id %>">
@@ -38,6 +40,8 @@
                                 <input type="text" value="<%= product.quantity %>" name="prod-qty"
                                     class="cart-product-qty" disabled />
                                 <form method="POST" action="/cart">
+                                    <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+
                                     <input type="hidden" name="type" value="1">
                                     <input type="hidden" name="quantity" value="1">
                                     <input type="hidden" name="id" value="<%= product._id %>">
@@ -58,6 +62,8 @@
 
             <!-- product delete start -->
             <form method="POST" action="/cart/delete" class="cart-product-delete">
+                <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+
                 <input type="hidden" name="id" value="<%= product._id %>">
                 <button type="submit"> <i class="fa-solid fa-xmark"></i></button>
             </form>

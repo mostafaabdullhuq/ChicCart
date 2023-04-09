@@ -53,7 +53,7 @@ const UserSchema = new Schema({
         type: String,
         required: true,
         minLength: [6, "Password should be at least 6 characters"],
-        maxLength: [30, "Password should not exceed 30 characters"],
+        maxLength: [128, "Password should not exceed 30 characters"],
     },
     isAdmin: {
         type: Boolean,
