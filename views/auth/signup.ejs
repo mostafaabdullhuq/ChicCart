@@ -1,6 +1,6 @@
-<%- include('./layouts/main_start.ejs') %>
+<%- include('./../layouts/main_start.ejs') %>
 <!--!! content start !!-->
-<img src="./../../public/assets/images/login.svg"
+<img src="./../../../public/assets/images/login.svg"
     class="absolute opacity-70 top-[50%] left-0 right-0 translate-y-[-50%]" alt="" />
 <div class="overlay bg-slate-300 absolute inset-0 bg-opacity-40 backdrop-blur-[2px]"></div>
 <main class="z-10 relative container flex-col gap-8 flex items-center justify-center w-screen h-screen">
@@ -29,7 +29,8 @@
         </div>
         <input class="form-control" type="text" name="username" placeholder="Username" <% if (errors.length) { %>
             value="<%= errors[0].data.username %>" <% } %> />
-        <input class="form-control" type="email" name="email" placeholder="Email address" />
+        <input class="form-control" type="email" name="email" placeholder="Email address" <% if (errors.length) { %>
+            value="<%= errors[0].data.email %>" <% } %> />
         <div class="grid grid-cols-2 gap-4">
             <input class="form-control" type="password" name="password" placeholder="Password"
                 <% if (errors.length) { %> value="<%= errors[0].data.password %>" <% } %> />
@@ -45,4 +46,4 @@
     </form>
 </main>
 <!--!! content start !!-->
-<%- include('./layouts/main_end.ejs') %>
+<%- include('./../layouts/main_end.ejs') %>

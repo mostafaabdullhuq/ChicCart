@@ -1,5 +1,5 @@
-<%- include('./layouts/main_start.ejs') %>
-<img src="./../../public/assets/images/login.svg"
+<%- include('./../layouts/main_start.ejs') %>
+<img src="./../../../public/assets/images/login.svg"
     class="absolute opacity-70 top-[50%] left-0 right-0 translate-y-[-50%]" alt="" />
 <div class="overlay bg-slate-300 absolute inset-0 bg-opacity-40 backdrop-blur-[2px]"></div>
 <main class="z-10 relative container flex-col gap-8 flex items-center justify-center w-screen h-screen">
@@ -22,7 +22,8 @@
                 <input id="remember" name="remember" type="checkbox" class="cursor-pointer" />
                 <label for="remember" class="text-slate-800 font-[450] cursor-pointer">Remember me</label>
             </div>
-            <p class="font-[500] hover:font-bold underline text-blue-600"><a href="#">Forgot your password?</a>
+            <p class="font-[500] hover:font-bold underline text-blue-600"><a href="/reset_password">Forgot your
+                    password?</a>
             </p>
         </div>
         <button class="form-submit" type="submit">Sign in</button>
@@ -33,4 +34,4 @@
         </p>
     </form>
 </main>
-<%- include('./layouts/main_end.ejs') %>
+<%- include('./../layouts/main_end.ejs') %>

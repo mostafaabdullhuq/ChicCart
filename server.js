@@ -5,22 +5,21 @@ const express = require("express"),
     authRoutes = require("./routes/auth"),
     path = require("path"),
     errorController = require("./controllers/errorController"),
-    Product = require("./models/product"),
     User = require("./models/user"),
-    PromoCode = require("./models/promocode"),
     csrf = require("csurf"),
     session = require("express-session"),
-    sessionFlash = require("connect-flash");
+    sessionFlash = require("connect-flash"),
+    env = require("dotenv"),
+    MongoStore = require("connect-mongodb-session");
 
 const app = express();
-
-const MongoStore = require("connect-mongodb-session");
+const envVars = env.config().parsed;
 
 const MongoSession = MongoStore(session);
 
 const sessionStorage = new MongoSession({
-    uri: "mongodb://localhost:27017/ChicCart_mongoose",
-    collection: "sessions",
+    uri: envVars.DATABASE_URI,
+    collection: envVars.SESSION_COLLECTION_NAME,
 });
 
 //! SETUP VIEWS !//
@@ -41,7 +40,7 @@ app.use(express.static(path.join(__dirname, "node_modules"))); // SERVE PUBLIC F
 // CONFIGURE SESSION
 app.use(
     session({
-        secret: "SECRET_KEY_FOR_ENCRYPTION",
+        secret: envVars.SESSION_SECRET_KEY,
         resave: false,
         saveUninitialized: false,
         store: sessionStorage,
@@ -123,7 +122,11 @@ const mongoose = require("mongoose");
 mongoose
     .connect("mongodb://localhost:27017/ChicCart_mongoose")
     .then((connection) => {
+        // ! FOR DEVELOPMENT ONLY!
         // CHECK IF TEST USER ALREADY EXISTS IN CART, IF NOT CREATE A ONE
+        // const PromoCode = require("./models/promocode"),
+        // Product = require("./models/product");
+
         // User.findOne()
         //     .then((user) => {
         //         if (!user) {
