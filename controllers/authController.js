@@ -1,22 +1,21 @@
 const User = require("./../models/user"),
     bcrypt = require("bcryptjs"),
     env = require("dotenv"),
-    PasswordReset = require("./../models/password_reset");
+    PasswordReset = require("./../models/password_reset"),
+    nodemailer = require("nodemailer"),
+    sendgridMailer = require("nodemailer-sendgrid-transport"),
+    crypto = require("crypto"),
+    { check, validationResult } = require("express-validator");
 
-const envVars = env.config().parsed;
-
-const nodemailer = require("nodemailer");
-const sendgridMailer = require("nodemailer-sendgrid-transport");
-
-const VIEW_PREFIX = "auth/";
-
-const transporter = nodemailer.createTransport(
-    sendgridMailer({
-        auth: {
-            api_key: envVars.SENDGRID_API_KEY,
-        },
-    })
-);
+const envVars = env.config().parsed,
+    VIEW_PREFIX = "auth/",
+    transporter = nodemailer.createTransport(
+        sendgridMailer({
+            auth: {
+                api_key: envVars.SENDGRID_API_KEY,
+            },
+        })
+    );
 
 exports.getLogin = (req, res, next) => {
     res.render(`${VIEW_PREFIX}login`, {
@@ -89,83 +88,21 @@ exports.getSignup = (req, res, next) => {
     });
 };
 
-async function signupValidator(requestBody) {
-    const responseObj = {
-        isValid: true,
-        errors: [],
-        data: {
-            firstName: requestBody.firstName,
-            lastName: requestBody.lastName,
-            username: requestBody.username,
-            email: requestBody.email,
-            password: requestBody.password,
-            passwordConfirm: requestBody.passwordConfirm,
-        },
-    };
-
-    if (!/^[\p{Letter}\p{Mark}\s]{2,20}$/u.test(responseObj.data.firstName)) {
-        responseObj.errors.push("Invalid first name format.");
-    }
-
-    if (!/^[\p{Letter}\p{Mark}\s]{2,20}$/u.test(responseObj.data.lastName)) {
-        responseObj.errors.push("Invalid last name format.");
-    }
-
-    if (!/^[a-zA-Z]{1}([a-zA-Z0-9_.]){4,16}$/i.test(responseObj.data.username)) {
-        responseObj.errors.push("Invalid username format.");
-    } else {
-        let usernameExists = await User.findOne({
-            username: { $regex: new RegExp(`^${responseObj.data.username}$`, "i") },
-        });
-        if (usernameExists) {
-            responseObj.errors.push("Username already exists.");
-        }
-    }
-
-    if (!/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/i.test(responseObj.data.email)) {
-        responseObj.errors.push("Invalid email format.");
-    } else {
-        let isEmailExists = await User.findOne({
-            email: { $regex: new RegExp(`^${responseObj.data.email}$`, "i") },
-        });
-
-        if (isEmailExists) {
-            responseObj.errors.push("Email address already exists.");
-        }
-    }
-
-    if (!/^(?=.*[A-Z])(?=.*\d)(?=.*[._\-\!\@\&\#\$])[A-Za-z\d._\-\!\@\&\#\$]{8,24}$/.test(responseObj.data.password)) {
-        responseObj.errors.push("Invalid password format.");
-    }
-
-    if (responseObj.data.password !== responseObj.data.passwordConfirm) {
-        responseObj.errors.push("Password confirmation mismatch.");
-    }
-
-    if (responseObj.errors.length) {
-        responseObj.isValid = false;
-    }
-
-    return responseObj;
-}
-
 exports.postSignup = (req, res, next) => {
-    let validator;
-    signupValidator(req.body)
-        .then((validationResult) => {
-            validator = validationResult;
-            if (validationResult.isValid) {
-                return bcrypt.hash(validationResult.data.password, 12);
-            }
-            return null;
-        })
+    const firstName = req.body.firstName,
+        lastName = req.body.lastName,
+        email = req.body.email,
+        username = req.body.username,
+        password = req.body.password;
+    return bcrypt
+        .hash(password, 12)
         .then((hashedPassword) => {
             if (hashedPassword) {
                 let user = new User({
-                    firstName: validator.data.firstName,
-                    lastName: validator.data.lastName,
-                    email: validator.data.email,
-                    username: validator.data.username,
+                    firstName: firstName,
+                    lastName: lastName,
+                    email: email,
+                    username: username,
                     password: hashedPassword,
                     isAdmin: false,
                 });
@@ -183,7 +120,7 @@ exports.postSignup = (req, res, next) => {
                     html: "<h1>You have completed your signup process. thanks!</h1>",
                 });
             } else {
-                req.flash("signupErr", validator);
+                req.flash("signupErr", "Technical error, Please try again later.");
                 res.redirect("/signup");
                 return null;
             }
@@ -192,8 +129,7 @@ exports.postSignup = (req, res, next) => {
             console.log(sendMail);
         })
         .catch((err) => {
-            console.log("Cannot signup", err);
-            return res.redirect("/signup");
+            console.log("Error signup", err);
         });
 };
 
@@ -219,7 +155,6 @@ exports.postResetPassword = (req, res, next) => {
         })
             .then((user) => {
                 if (user) {
-                    const crypto = require("crypto");
                     return crypto.randomBytes(32, (err, buffer) => {
                         if (err) {
                             console.log("Error generating token for reset password", err);
@@ -290,54 +225,48 @@ exports.getConfirmReset = (req, res, next) => {
 
 exports.postConfirmReset = (req, res, next) => {
     const token = req.params.token,
-        password = req.body.password,
-        passwordConfirm = req.body.passwordConfirm;
+        password = req.body.password;
     let resetToken;
-    if (token) {
-        if (password && passwordConfirm) {
-            if (!/^(?=.*[A-Z])(?=.*\d)(?=.*[._\-\!\@\&\#\$])[A-Za-z\d._\-\!\@\&\#\$]{8,24}$/.test(password) || password !== passwordConfirm) {
-                req.flash("confirmResetErr", "Invalid password format.");
-                return res.redirect(`confirm_reset/${token}`);
+
+    return PasswordReset.findOne({
+        token: token,
+    })
+        .then((passwordReset) => {
+            if (passwordReset) {
+                resetToken = passwordReset;
+                return User.findById(passwordReset.userID);
             }
-            return PasswordReset.findOne({
-                token: token,
-            })
-                .then((passwordReset) => {
-                    if (passwordReset) {
-                        resetToken = passwordReset;
-                        return User.findById(passwordReset.userID);
-                    }
-                    return null;
-                })
-                .then(async (user) => {
-                    if (user) {
-                        let hashedPassword = await bcrypt.hash(password, 12);
-                        if (hashedPassword) {
-                            user.password = hashedPassword;
-                            return user.save();
-                        }
-                        return null;
-                    }
-                    return null;
-                })
-                .then((newUser) => {
-                    if (newUser) {
-                        PasswordReset.findByIdAndRemove(resetToken._id);
-                        req.session.user = newUser;
-                        return req.session.save(() => {
-                            res.redirect("/");
-                        });
-                    }
-                    console.log("here");
-                    return res.redirect(`/confirm_reset/${token}`);
-                })
-                .catch((err) => {
-                    console.log("Error finding reset token", err);
-                    return res.redirect("/reset_password");
+            return null;
+        })
+        .then(async (user) => {
+            if (user) {
+                let hashedPassword = await bcrypt.hash(password, 12);
+                if (hashedPassword) {
+                    user.password = hashedPassword;
+                    return user.save();
+                }
+                return null;
+            }
+            return null;
+        })
+        .then((newUser) => {
+            if (newUser) {
+                PasswordReset.deleteMany({ userID: newUser._id })
+                    .then((res) => {
+                        return;
+                    })
+                    .catch((err) => {
+                        console.log("Cannot delete user reset tokens", err);
+                    });
+                req.session.user = newUser;
+                return req.session.save(() => {
+                    res.redirect("/");
                 });
-        }
-        req.flash("confirmResetErr", "Password is required.");
-        return res.redirect(`confirm_reset/${token}`);
-    }
-    return res.redirect("/reset_password");
+            }
+            return res.redirect(`/confirm_reset/${token}`);
+        })
+        .catch((err) => {
+            console.log("Error finding reset token", err);
+            return res.redirect("/reset_password");
+        });
 };

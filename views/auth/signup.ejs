@@ -11,9 +11,9 @@
 
         <% if (errors.length) { %>
         <div class="text-center p-3 bg-red-500 text-white rounded-lg text-lg">
-            <% for (let error of errors[0]?.errors) { %>
+            <% for (let error of errors) { %>
 
-            <p><%= error %></p>
+            <p><%= error.msg %></p>
 
             <% } %>
         </div>
@@ -23,19 +23,19 @@
         <% } %>
         <div class="grid grid-cols-2 gap-4">
             <input type="text" name="firstName" placeholder="First Name" class="form-control" <% if (errors.length) { %>
-                value="<%= errors[0].data.firstName %>" <% } %> />
+                value="<%= data.firstName %>" <% } %> />
             <input type="text" name="lastName" placeholder="Last Name" class="form-control" <% if (errors.length) { %>
-                value="<%= errors[0].data.lastName %>" <% } %> />
+                value="<%= data.lastName %>" <% } %> />
         </div>
         <input class="form-control" type="text" name="username" placeholder="Username" <% if (errors.length) { %>
-            value="<%= errors[0].data.username %>" <% } %> />
+            value="<%= data.username %>" <% } %> />
         <input class="form-control" type="email" name="email" placeholder="Email address" <% if (errors.length) { %>
-            value="<%= errors[0].data.email %>" <% } %> />
+            value="<%= data.email %>" <% } %> />
         <div class="grid grid-cols-2 gap-4">
             <input class="form-control" type="password" name="password" placeholder="Password"
-                <% if (errors.length) { %> value="<%= errors[0].data.password %>" <% } %> />
+                <% if (errors.length) { %> value="<%= data.password %>" <% } %> />
             <input class="form-control" type="password" name="passwordConfirm" placeholder="Confirm Password"
-                <% if (errors.length) { %> value="<%= errors[0].data.passwordConfirm %>" <% } %> />
+                <% if (errors.length) { %> value="<%= data.passwordConfirm %>" <% } %> />
 
         </div>
         <button class=" form-submit" type="submit">Sign up</button>
