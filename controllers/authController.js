@@ -4,8 +4,7 @@ const User = require("./../models/user"),
     PasswordReset = require("./../models/password_reset"),
     nodemailer = require("nodemailer"),
     sendgridMailer = require("nodemailer-sendgrid-transport"),
-    crypto = require("crypto"),
-    { check, validationResult } = require("express-validator");
+    crypto = require("crypto");
 
 const envVars = env.config().parsed,
     VIEW_PREFIX = "auth/",
@@ -27,58 +26,47 @@ exports.getLogin = (req, res, next) => {
 exports.postLogin = (req, res, next) => {
     const username = req.body.username,
         password = req.body.password;
-    if (username && password) {
-        let foundUser;
-        User.findOne({
-            username: { $regex: new RegExp(`^${username}$`, "i") },
+    let foundUser;
+    User.findOne({
+        username: { $regex: new RegExp(`^${username}$`, "i") },
+    })
+        .then((user) => {
+            if (user) {
+                foundUser = user;
+                return bcrypt.compare(password, user.password);
+            }
+            return null;
         })
-            .then((user) => {
-                if (user) {
-                    foundUser = user;
-                    return bcrypt.compare(password, user.password);
-                }
-                return null;
-            })
-            .then((isPassMatches) => {
-                if (isPassMatches) {
-                    req.session.user = foundUser;
-                    req.session.save(() => {
-                        res.redirect("/");
-                    });
-                } else {
-                    req.flash("loginErr", {
-                        error: "Invalid username or password.",
-                        data: {
-                            username: username,
-                            password: password,
-                        },
-                    });
-                    res.redirect("/login");
-                }
-            })
-            .catch((err) => {
-                req.session.user = false;
+        .then((isPassMatches) => {
+            if (isPassMatches) {
+                req.session.user = foundUser;
+                req.session.save(() => {
+                    res.redirect("/");
+                });
+            } else {
                 req.flash("loginErr", {
-                    error: "Something went wrong, Please try again later.",
+                    error: "Invalid username or password.",
                     data: {
                         username: username,
                         password: password,
                     },
                 });
-
                 res.redirect("/login");
-                console.log("Cannot login user", err);
+            }
+        })
+        .catch((err) => {
+            req.session.user = false;
+            req.flash("loginErr", {
+                error: "Something went wrong, Please try again later.",
+                data: {
+                    username: username,
+                    password: password,
+                },
             });
-    } else {
-        req.flash("loginErr", {
-            error: "Invalid username or password.",
-            data: {
-                username: username,
-                password: password,
-            },
+
+            res.redirect("/login");
+            console.log("Cannot login user", err);
         });
-        res.redirect("/login");
-    }
 };
 
 exports.getSignup = (req, res, next) => {
@@ -146,56 +134,92 @@ exports.getResetPassword = (req, res, next) => {
         error: req.flash("forgetErr"),
     });
 };
+exports.getResetPasswordResend = (req, res, next) => {
+    let token = req.body.token;
+    return PasswordReset.findOne({
+        token: token,
+    })
+        .populate("userID")
+        .then((reset) => {
+            if (reset) {
+                let userEmail = reset.userID.email;
+                transporter.sendMail({
+                    from: envVars.MAIL_FROM_ADDRESS,
+                    to: userEmail,
+                    subject: "Your password reset link",
+                    html: `
+                                        <h1>You have requested a \password \reset link \for your account ${userEmail}</h1>
+                                        <p>Click the link below to reset your password</p>
+                                        <a href="http://localhost:8000/confirm_reset/${token}">Reset your password</a>
+                                        `,
+                });
+                return res.render(`${VIEW_PREFIX}reset_password_sent`, {
+                    pageTitle: "Reset your password",
+                    error: req.flash("forgetErr"),
+                    emailAddress: userEmail,
+                    resetToken: token,
+                });
+            }
+            req.flash("forgetErr", "Reset token expired.");
+
+            return res.redirect("/reset_password");
+        })
+        .catch((err) => {
+            console.log("Error resending reset", err);
+            return res.redirect("/reset_password");
+        });
+};
 
 exports.postResetPassword = (req, res, next) => {
     const userEmail = req.body.email;
-    if (userEmail) {
-        return User.findOne({
-            email: new RegExp(`^${userEmail}$`, "i"),
-        })
-            .then((user) => {
-                if (user) {
-                    return crypto.randomBytes(32, (err, buffer) => {
-                        if (err) {
-                            console.log("Error generating token for reset password", err);
-                            req.flash("forgetErr", "Technical error occurred, Please try again later.");
-                        }
-                        const token = buffer.toString("hex");
-                        let reset = new PasswordReset({
-                            userID: user._id,
-                            token: token,
-                        });
-                        return reset
-                            .save()
-                            .then((result) => {
-                                transporter.sendMail({
-                                    from: envVars.MAIL_FROM_ADDRESS,
-                                    to: userEmail,
-                                    subject: "Your password reset link",
-                                    html: `
+    return User.findOne({
+        email: new RegExp(`^${userEmail}$`, "i"),
+    })
+        .then((user) => {
+            if (user) {
+                return crypto.randomBytes(32, (err, buffer) => {
+                    if (err) {
+                        console.log("Error generating token for reset password", err);
+                        req.flash("forgetErr", "Technical error occurred, Please try again later.");
+                    }
+                    const token = buffer.toString("hex");
+                    let reset = new PasswordReset({
+                        userID: user._id,
+                        token: token,
+                    });
+                    return reset
+                        .save()
+                        .then((result) => {
+                            transporter.sendMail({
+                                from: envVars.MAIL_FROM_ADDRESS,
+                                to: userEmail,
+                                subject: "Your password reset link",
+                                html: `
                                     <h1>You have requested a \password \reset link \for your account ${userEmail}</h1>
                                     <p>Click the link below to reset your password</p>
                                     <a href="http://localhost:8000/confirm_reset/${token}">Reset your password</a>
                                     `,
-                                });
-                                return res.redirect("/");
-                            })
-                            .catch((err) => {
-                                console.log("Cannot save reset password", err);
-                                req.flash("forgetErr", "Technical error occurred, Please try again later.");
-                                return res.redirect("/reset_password");
                             });
-                    });
-                }
-                req.flash("forgetErr", "Email address not found.");
-                return res.redirect("/reset_password");
-            })
-            .catch((err) => {
-                console.log("Error resetting password", err);
-            });
-    }
-    req.flash("forgetErr", "Email address is required.");
-    return res.redirect("/reset_password");
+                            return res.render(`${VIEW_PREFIX}reset_password_sent`, {
+                                pageTitle: "Reset your password",
+                                error: req.flash("forgetErr"),
+                                emailAddress: userEmail,
+                                resetToken: token,
+                            });
+                        })
+                        .catch((err) => {
+                            console.log("Cannot save reset password", err);
+                            req.flash("forgetErr", "Technical error occurred, Please try again later.");
+                            return res.redirect("/reset_password");
+                        });
+                });
+            }
+            req.flash("forgetErr", "Email address not found.");
+            return res.redirect("/reset_password");
+        })
+        .catch((err) => {
+            console.log("Error resetting password", err);
+        });
 };
 
 exports.getConfirmReset = (req, res, next) => {
@@ -226,14 +250,12 @@ exports.getConfirmReset = (req, res, next) => {
 exports.postConfirmReset = (req, res, next) => {
     const token = req.params.token,
         password = req.body.password;
-    let resetToken;
 
     return PasswordReset.findOne({
         token: token,
     })
         .then((passwordReset) => {
             if (passwordReset) {
-                resetToken = passwordReset;
                 return User.findById(passwordReset.userID);
             }
             return null;

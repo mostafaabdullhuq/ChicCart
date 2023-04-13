@@ -4,7 +4,7 @@ const PromoCode = require("../models/promocode"),
 
 // CHECKOUT PAGE
 exports.getCheckout = async (req, res, next) => {
-    req.user
+    return req.user
         .getCart()
         .then((cart) => {
             if (cart?.items?.length) {
@@ -27,6 +27,8 @@ exports.getCheckout = async (req, res, next) => {
                         postalCode: req.user.postalCode,
                         phoneNumber: req.user.phoneNumber,
                     },
+                    errors: req.flash("checkoutErr"),
+                    errorData: req.flash("checkoutErrData")[0] ?? {},
                 });
             } else res.redirect("/cart");
         })
@@ -59,73 +61,67 @@ exports.postRemovePromo = (req, res, next) => {
 };
 
 exports.postCreateOrder = (req, res, next) => {
-    // IF THERE'S A PROMOCODE ENTERED BY USER IN CHECKOUT
-    const shippingDetails = {
-            firstName: req.body.firstName,
-            lastName: req.body.lastName,
-            streetAddress: req.body.streetAddress,
-            buildingNo: req.body.buildingNo,
-            city: req.body.city,
-            state: req.body.state,
-            postalCode: req.body.postalCode,
-            phoneNumber: req.body.phoneNumber,
-            deliveryNotes: req.body.deliveryNotes ?? null,
-        },
-        paymentMethod = +req.body.paymentMethod,
-        userID = req.user._id;
     // VALIDATE ORDER FORM (SHIPPING DETAILS AND PAYMENT METHOD)
-    if (shippingDetails && paymentMethod && userID) {
-        req.user
-            .getCart()
-            .then(async (cart) => {
-                cart.items = cart.items.map((item) => {
-                    let newItem = { ...item };
-                    newItem = newItem._doc;
-                    delete newItem.__v;
-                    newItem.quantity = item.quantity;
-                    return newItem;
-                });
-                const promoCode = req.app.get("promoCode") ?? null,
-                    promoDiscount = req.app.get("promoDiscountValue") ?? 0,
-                    order = new Order({
-                        items: cart.items,
-                        paymentMethod: paymentMethod,
-                        price: cart.price,
-                        shipping: cart.shipping,
-                        shippingDetails: shippingDetails,
-                        userID: req.user,
-                        discountValue: promoDiscount,
-                        promoCode: promoCode,
-                    });
-                // console.log(order);
-                return order.save();
-            })
-            .then((createdOrder) => {
-                if (createdOrder) {
-                    req.user.cart = [];
-                    req.app.set("promoCode", null);
-                    req.app.set("promoDiscountValue", 0);
-                    req.user
-                        .save()
-                        .then((newUser) => {
-                            res.locals.cartItemsCount = 0;
-                            res.render(`${VIEW_PREFIX}order_confirmation`, {
-                                path: null,
-                                pageTitle: `Order Confirmed`,
-                                orderID: createdOrder._id,
-                            });
-                        })
-                        .catch((err) => {
-                            console.log("Cannot reset cart", err);
-                            res.redirect("/checkout");
-                        });
-                } else {
-                    res.redirect("/checkout");
-                }
-            })
-            .catch((err) => {
-                console.log("Error while creating order", err);
-                res.redirect("/checkout");
+    return req.user
+        .getCart()
+        .then(async (cart) => {
+            cart.items = cart.items.map((item) => {
+                let newItem = { ...item };
+                newItem = newItem._doc;
+                delete newItem.__v;
+                newItem.quantity = item.quantity;
+                return newItem;
             });
-    }
+            const promoCode = req.app.get("promoCode") ?? null,
+                promoDiscount = req.app.get("promoDiscountValue") ?? 0,
+                order = new Order({
+                    items: cart.items,
+                    paymentMethod: +req.body.paymentMethod,
+                    price: cart.price,
+                    shipping: cart.shipping,
+                    shippingDetails: {
+                        firstName: req.body.firstName,
+                        lastName: req.body.lastName,
+                        streetAddress: req.body.streetAddress,
+                        buildingNo: req.body.buildingNo,
+                        city: req.body.city,
+                        state: req.body.state,
+                        postalCode: req.body.postalCode,
+                        phoneNumber: req.body.phoneNumber,
+                        deliveryNotes: req.body.deliveryNotes ?? null,
+                    },
+                    userID: req.user,
+                    discountValue: promoDiscount,
+                    promoCode: promoCode,
+                });
+            // console.log(order);
+            return order.save();
+        })
+        .then((createdOrder) => {
+            if (createdOrder) {
+                req.user.cart = [];
+                req.app.set("promoCode", null);
+                req.app.set("promoDiscountValue", 0);
+                req.user
+                    .save()
+                    .then((newUser) => {
+                        res.locals.cartItemsCount = 0;
+                        res.render(`${VIEW_PREFIX}order_confirmation`, {
+                            path: null,
+                            pageTitle: `Order Confirmed`,
+                            orderID: createdOrder._id,
+                        });
+                    })
+                    .catch((err) => {
+                        console.log("Cannot reset cart", err);
+                        res.redirect("/checkout");
+                    });
+            } else {
+                res.redirect("/checkout");
+            }
+        })
+        .catch((err) => {
+            console.log("Error while creating order", err);
+            res.redirect("/checkout");
+        });
 };

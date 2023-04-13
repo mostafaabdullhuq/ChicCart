@@ -112,6 +112,11 @@ const OrderSchema = new Schema({
         required: true,
         ref: "User",
     },
+    createdAt: {
+        type: Date,
+        required: true,
+        default: new Date(),
+    },
 });
 
 module.exports = model("Order", OrderSchema);

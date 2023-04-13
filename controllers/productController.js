@@ -80,24 +80,19 @@ exports.getProducts = (req, res, next) => {
 
 // PRODUCT DETAILS PAGE
 exports.getProduct = async (req, res, next) => {
-    const productID = req.params.id;
-    if (productID) {
-        Product.findById(productID)
-            .then((product) => {
-                product
-                    ? res.render(`${VIEW_PREFIX}product_details`, {
-                          product: product,
-                          pageTitle: "Shop",
-                          path: "product_details",
-                      })
-                    : res.redirect("/admin/products");
-            })
-            .catch((err) => {
-                res.redirect("/");
+    Product.findById(req.params.id)
+        .then((product) => {
+            product
+                ? res.render(`${VIEW_PREFIX}product_details`, {
+                      product: product,
+                      pageTitle: "Shop",
+                      path: "product_details",
+                  })
+                : res.redirect("/admin/products");
+        })
+        .catch((err) => {
+            res.redirect("/");
 
-                console.log("Cannot get product", err);
-            });
-    } else {
-        res.redirect("/products");
-    }
+            console.log("Cannot get product", err);
+        });
 };

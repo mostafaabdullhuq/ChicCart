@@ -1,19 +1,21 @@
 const { Router } = require("express"),
     router = Router(),
-    productController = require("../controllers/productController"),
-    cartController = require("../controllers/cartController"),
-    orderController = require("../controllers/orderController");
-authMiddleware = require("../middlewares/auth");
+    { getIndex, getProducts, getProduct } = require("../controllers/productController"),
+    { getCart, postCart, getDeleteCart } = require("../controllers/cartController"),
+    { getCheckout, postAddPromo, postRemovePromo, postCreateOrder } = require("../controllers/orderController"),
+    isAuthed = require("../middlewares/authed"),
+    { getProductValidator } = require("./../middlewares/validators/productValidator"),
+    { createOrderValidator } = require("./../middlewares/validators/orderValidator");
 
-router.get(["/home", "/index", ""], productController.getIndex); // GET HOME PAGE
-router.get("/products", productController.getProducts); // GET ALL PRODUCTS PAGE
-router.get("/product/:id", productController.getProduct); // GET PRODUCT DETAILS PAGE
-router.get("/cart", authMiddleware, cartController.getCart); // GET CART PAGE
-router.post("/cart", authMiddleware, cartController.postCart); // ADD PRODUCT TO CART
-router.post("/cart/delete", authMiddleware, cartController.getDeleteCart); // DELETE PRODUCT FROM CART
-router.get("/checkout", authMiddleware, orderController.getCheckout); // GET CHECKOUT PAGE
-router.post("/promocode/add", authMiddleware, orderController.postAddPromo); // POST ADD PROMOCODE
-router.post("/promocode/remove", authMiddleware, orderController.postRemovePromo); // POST REMOVE PROMOCODE
-router.post("/order/create", authMiddleware, orderController.postCreateOrder); // POST CREATE ORDER
+router.get(["/home", "/index", ""], getIndex); // GET HOME PAGE
+router.get("/products", getProducts); // GET ALL PRODUCTS PAGE
+router.get("/product/:id", getProductValidator, getProduct); // GET PRODUCT DETAILS PAGE
+router.get("/cart", isAuthed, getCart); // GET CART PAGE
+router.post("/cart", isAuthed, postCart); // ADD PRODUCT TO CART
+router.post("/cart/delete", isAuthed, getDeleteCart); // DELETE PRODUCT FROM CART
+router.get("/checkout", isAuthed, getCheckout); // GET CHECKOUT PAGE
+router.post("/promocode/add", isAuthed, postAddPromo); // POST ADD PROMOCODE
+router.post("/promocode/remove", isAuthed, postRemovePromo); // POST REMOVE PROMOCODE
+router.post("/order/create", isAuthed, createOrderValidator, postCreateOrder); // POST CREATE ORDER
 
 module.exports = router;

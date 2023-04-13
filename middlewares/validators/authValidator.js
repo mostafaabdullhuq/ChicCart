@@ -1,9 +1,41 @@
-const { body, validationResult } = require("express-validator"),
+const { body, param, validationResult } = require("express-validator"),
     User = require("./../../models/user");
-
 const VIEW_PREFIX = "auth/";
 
-module.exports = [
+exports.confirmResetValidator = [
+    param("token").notEmpty().withMessage("Reset token is required."),
+    body("password")
+        .notEmpty()
+        .withMessage("Password is required.")
+        .bail()
+        .isStrongPassword()
+        .withMessage("Invalid password format.")
+        .bail()
+        .custom((password, { req }) => {
+            if (password !== req.body.passwordConfirm) {
+                throw new Error("Password confirmation doesn't match.");
+            }
+            return true;
+        }),
+
+    // get validation result
+    (req, res, next) => {
+        const validationErr = validationResult(req);
+        // if there's error in validation, don't pass the middleware and render the signup page with errors
+        if (!validationErr.isEmpty()) {
+            let token = req.params.token;
+            if (token) {
+                return res.redirect(`/confirm_reset/${token}`);
+            }
+            return res.redirect("/reset_password");
+        }
+
+        // if there's no errors in validation, go to the next middleware
+        next();
+    },
+];
+
+exports.signupValidator = [
     // Validate email address
     body("email")
         .notEmpty()
@@ -104,6 +136,71 @@ module.exports = [
                     passwordConfirm: passwordConfirm,
                 },
             });
+        }
+
+        // if there's no errors in validation, go to the next middleware
+        next();
+    },
+];
+
+exports.loginValidator = [
+    // Validate username
+    body("username").notEmpty().withMessage("Invalid username or password."),
+    body("password").notEmpty().withMessage("Invalid username or password."),
+    // get validation result
+    (req, res, next) => {
+        const validationErr = validationResult(req);
+        // if there's error in validation, don't pass the middleware and render the signup page with errors
+        if (!validationErr.isEmpty()) {
+            req.flash("loginErr", {
+                error: "Invalid username or password.",
+                data: {
+                    username: req.body.username,
+                    password: req.body.password,
+                },
+            });
+            return res.redirect("/login");
+        }
+
+        // if there's no errors in validation, go to the next middleware
+        next();
+    },
+];
+
+exports.resetValidator = [
+    // Validate username
+    body("email")
+        .notEmpty()
+        .withMessage("Email address is required.")
+        .bail() // STOP EXECUTING THE NEXT VALIDATIONS IF THE CURRENT IS FAILED
+        .isEmail()
+        .withMessage("Invalid email address format.")
+        .bail()
+        .normalizeEmail(),
+    // get validation result
+    (req, res, next) => {
+        const validationErr = validationResult(req);
+        // if there's error in validation, don't pass the middleware and render the signup page with errors
+        if (!validationErr.isEmpty()) {
+            req.flash("forgetErr", validationErr.array()[0].msg);
+            return res.redirect("/reset_password");
+        }
+
+        // if there's no errors in validation, go to the next middleware
+        next();
+    },
+];
+
+exports.resetPasswordResendValidator = [
+    // Validate username
+    body("token").notEmpty().withMessage("Reset token is required."),
+    // get validation result
+    (req, res, next) => {
+        const validationErr = validationResult(req);
+        // if there's error in validation, don't pass the middleware and render the signup page with errors
+        if (!validationErr.isEmpty()) {
+            req.flash("forgetErr", validationErr.array()[0].msg);
+            return res.redirect("/reset_password");
         }
 
         // if there's no errors in validation, go to the next middleware

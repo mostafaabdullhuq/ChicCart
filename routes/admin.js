@@ -1,13 +1,14 @@
-const { Router } = require("express");
-const router = Router();
-const adminController = require("./../controllers/adminController");
-const adminMiddleware = require("./../middlewares/admin");
+const { Router } = require("express"),
+    router = Router(),
+    { getAdminProducts, getAddProduct, postAddProduct, getEditProduct, postEditProduct, getDeleteProduct } = require("./../controllers/adminController"),
+    isAdmin = require("./../middlewares/admin"),
+    { addProductValidator, getEditProductValidator, postEditProductValidator, getDeleteProductValidator } = require("./../middlewares/validators/productValidator");
 
-router.get("/products", adminMiddleware, adminController.getAdminProducts); // GET LIST OF PRODUCTS
-router.get("/products/create", adminMiddleware, adminController.getAddProduct); // GET CREATE NEW PRODUCT
-router.post("/products", adminMiddleware, adminController.postAddProduct); // POST ADD NEW PRODUCT
-router.get("/products/:id/edit", adminMiddleware, adminController.getEditProduct); // GET EDIT PRODUCT
-router.post("/products/:id", adminMiddleware, adminController.postEditProduct); // POST EDIT PRODUCT
-router.get("/products/:id/delete", adminMiddleware, adminController.getDeleteProduct); // DELETE PRODUCT
+router.get("/products", isAdmin, getAdminProducts); // GET LIST OF PRODUCTS
+router.get("/products/create", isAdmin, getAddProduct); // GET CREATE NEW PRODUCT
+router.post("/products", isAdmin, addProductValidator, postAddProduct); // POST ADD NEW PRODUCT
+router.get("/products/:id/edit", isAdmin, getEditProductValidator, getEditProduct); // GET EDIT PRODUCT
+router.post("/products/:id", isAdmin, postEditProductValidator, postEditProduct); // POST EDIT PRODUCT
+router.get("/products/:id/delete", isAdmin, getDeleteProductValidator, getDeleteProduct); // DELETE PRODUCT
 
 module.exports = router;

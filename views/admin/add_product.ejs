@@ -4,15 +4,28 @@
 <main class="content justify-center">
     <form action="/admin/products" method="POST"
         class="login-form bg-white p-5 py-8 rounded-2xl shadow-xl border max-w-[700px] flex gap-3 flex-col w-full">
-        <h1 class="md:text-3xl text-center font-bold text-slate-700 text-xl mb-8">Add New Product</h1>
-        <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+        <% if (errors.length) { %>
+        <div class="text-center p-3 bg-red-500 text-white rounded-lg text-lg">
+            <% for (let error of errors) { %>
 
-        <input type="text" name="title" class="form-control" placeholder="Title" />
-        <textarea class="form-control resize-none min-h-[300px]" name="images" placeholder="Images"></textarea>
-        <input class="form-control" type="number" name="price" placeholder="Price" step="0.01" />
-        <input class="form-control" type="number" name="shippingPrice" placeholder="Shipping Price" step="0.01" />
+            <p><%= error.msg %></p>
+
+            <% } %>
+        </div>
+        <% } else { %>
+        <h1 class="md:text-3xl text-center font-bold text-slate-700 text-xl mb-8">Add New Product</h1>
+        <% } %>
+        <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+        <input type="text" name="title" class="form-control" placeholder="Title" <% if (data?.title) { %>
+            value="<%= data.title %>" <% } %> />
+        <textarea class="form-control resize-none min-h-[300px]" name="images"
+            placeholder="Images"><% if (data?.images) { %><%= data.images %> <% } %></textarea>
+        <input class="form-control" type="number" name="price" placeholder="Price" step="0.01" <% if (data?.price) { %>
+            value="<%= data.price %>" <% } %> />
+        <input class="form-control" type="number" name="shippingPrice" placeholder="Shipping Price" step="0.01"
+            <% if (data?.shippingPrice) { %> value="<%= data.shippingPrice %>" <% } %> />
         <textarea class="form-control resize-none min-h-[300px]" name="description"
-            placeholder="Description"></textarea>
+            placeholder="Description"><% if (data?.description) { %><%= data.description %><% } %></textarea>
         <button class="form-submit" type="submit">Add Product</button>
     </form>
 </main>
