@@ -15,8 +15,8 @@ exports.getCart = (req, res, next) => {
             });
         })
         .catch((err) => {
-            console.log(err);
-            res.redirect("/");
+            const error = new Error(`Error getting cart: ${err}`);
+            return next(error);
         });
 };
 
@@ -36,8 +36,8 @@ exports.postCart = (req, res, next) => {
                 }
             })
             .catch((err) => {
-                console.log("cannot add to cart,", err);
-                res.redirect("/");
+                const error = new Error(`Cannot add to cart: ${err}`);
+                return next(error);
             });
     } else {
         res.redirect("/");
@@ -57,7 +57,7 @@ exports.getDeleteCart = (req, res, next) => {
             }
         })
         .catch((err) => {
-            console.log("Cannot delete from cart", err);
-            res.redirect("/cart");
+            const error = new Error(`Cannot delete from cart: ${err}`);
+            return next(error);
         });
 };

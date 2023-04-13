@@ -26,8 +26,7 @@ exports.getIndex = (req, res, next) => {
             });
         })
         .catch((err) => {
-            console.log("failed to fetch index products", err);
-            res.redirect("404");
+            return next(new Error(`failed to fetch index products: ${err}`));
         });
 };
 
@@ -73,8 +72,8 @@ exports.getProducts = (req, res, next) => {
             });
         })
         .catch((err) => {
-            console.log("Cannot get all products", err);
-            res.redirect("/");
+            const error = new Error(`Cannot get all products: ${err}`);
+            return next(error);
         });
 };
 
@@ -91,8 +90,7 @@ exports.getProduct = async (req, res, next) => {
                 : res.redirect("/admin/products");
         })
         .catch((err) => {
-            res.redirect("/");
-
-            console.log("Cannot get product", err);
+            const error = new Error(`Cannot get product: ${err}`);
+            return next(error);
         });
 };

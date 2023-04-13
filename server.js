@@ -10,17 +10,16 @@ const express = require("express"),
     session = require("express-session"),
     sessionFlash = require("connect-flash"),
     env = require("dotenv"),
-    MongoStore = require("connect-mongodb-session");
+    MongoStore = require("connect-mongodb-session"),
+    mongoose = require("mongoose");
 
-const app = express();
-const envVars = env.config().parsed;
-
-const MongoSession = MongoStore(session);
-
-const sessionStorage = new MongoSession({
-    uri: envVars.DATABASE_URI,
-    collection: envVars.SESSION_COLLECTION_NAME,
-});
+const app = express(),
+    envVars = env.config().parsed,
+    MongoSession = MongoStore(session),
+    sessionStorage = new MongoSession({
+        uri: envVars.DATABASE_URI,
+        collection: envVars.SESSION_COLLECTION_NAME,
+    });
 
 //! SETUP VIEWS !//
 app.set("view engine", "ejs");
@@ -37,7 +36,7 @@ app.use(
 app.use(express.static(path.join(__dirname, "public"))); // SERVE PUBLIC FOLDER SO THAT IT'S ALL INSIDE FILES AND FOLDERS ARE AVAILABLE TO ACCESS FROM ANYWHERE
 app.use(express.static(path.join(__dirname, "node_modules"))); // SERVE PUBLIC FOLDER SO THAT IT'S ALL INSIDE FILES AND FOLDERS ARE AVAILABLE TO ACCESS FROM ANYWHERE
 
-// CONFIGURE SESSION
+//! CONFIGURE SESSION
 app.use(
     session({
         secret: envVars.SESSION_SECRET_KEY,
@@ -47,7 +46,7 @@ app.use(
     })
 );
 
-// MIDDLEWARE FOR CSRF PROTECTION (MUST BE DECLARED AFTER SESSION DECLARED)
+//! MIDDLEWARE FOR CSRF PROTECTION (MUST BE DECLARED AFTER SESSION DECLARED)
 const csrfProtection = csrf();
 app.use(csrfProtection);
 app.use((req, res, next) => {
@@ -55,12 +54,10 @@ app.use((req, res, next) => {
     next();
 });
 
-// FOR SAVING DATA IN SESSION FOR A SMALL PERIOD OF TIME (MUST BE DECLARED AFTER SESSION DECLARED)
+//! MIDDLEWARE FOR SAVING DATA IN SESSION FOR A SMALL PERIOD OF TIME (MUST BE DECLARED AFTER SESSION DECLARED)
 app.use(sessionFlash());
 
-// //! SET DEFAULT USER #FOR DEVELOPMENT PURPOSES ONLY, REMOVE IN PRODUCTION# !//
-
-// SET REQUEST USER TO THE TEST USER CREATED
+//! SET REQUEST USER TO SESSION USER IF FOUND
 app.use((req, res, next) => {
     const sessionUser = req.session.user;
     if (sessionUser) {
@@ -117,7 +114,8 @@ app.use(shopRoutes);
 
 app.use("/", errorController.get404); // IF ALL UPPER MIDDLEWARES NOT MATCHED, THEN THIS MIDDLEWARE WILL BE ACTIVATED AS 404 ERROR PAGE
 
-const mongoose = require("mongoose");
+//! ERROR HANDLER MIDDLEWARE , EXECUTES WHEN CALLING next(error) or any throw error occurred
+app.use(errorController.get500);
 
 mongoose
     .connect("mongodb://localhost:27017/ChicCart_mongoose")

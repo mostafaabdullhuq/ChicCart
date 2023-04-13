@@ -34,7 +34,8 @@ exports.getCheckout = async (req, res, next) => {
         })
 
         .catch((err) => {
-            console.log(`cannot get checkout, ${err}`);
+            const error = new Error(`Cannot get checkout: ${err}`);
+            return next(error);
         });
 };
 
@@ -113,15 +114,15 @@ exports.postCreateOrder = (req, res, next) => {
                         });
                     })
                     .catch((err) => {
-                        console.log("Cannot reset cart", err);
-                        res.redirect("/checkout");
+                        const error = new Error(`Cannot reset cart: ${err}`);
+                        return next(error);
                     });
             } else {
                 res.redirect("/checkout");
             }
         })
         .catch((err) => {
-            console.log("Error while creating order", err);
-            res.redirect("/checkout");
+            const error = new Error(`Error while creating order: ${err}`);
+            return next(error);
         });
 };

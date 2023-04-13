@@ -5,3 +5,11 @@ exports.get404 = (req, res, next) => {
         path: null,
     });
 };
+
+exports.get500 = (error, req, res, next) => {
+    res.statusCode = 500;
+    res.render("500", {
+        pageTitle: "Unexpected error",
+        path: null,
+    });
+};

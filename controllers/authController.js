@@ -56,16 +56,8 @@ exports.postLogin = (req, res, next) => {
         })
         .catch((err) => {
             req.session.user = false;
-            req.flash("loginErr", {
-                error: "Something went wrong, Please try again later.",
-                data: {
-                    username: username,
-                    password: password,
-                },
-            });
-
-            res.redirect("/login");
-            console.log("Cannot login user", err);
+            const error = new Error(`Cannot login user: ${err}`);
+            return next(error);
         });
 };
 
@@ -117,7 +109,8 @@ exports.postSignup = (req, res, next) => {
             console.log(sendMail);
         })
         .catch((err) => {
-            console.log("Error signup", err);
+            const error = new Error(`Error signup: ${err}`);
+            return next(error);
         });
 };
 
@@ -165,8 +158,8 @@ exports.getResetPasswordResend = (req, res, next) => {
             return res.redirect("/reset_password");
         })
         .catch((err) => {
-            console.log("Error resending reset", err);
-            return res.redirect("/reset_password");
+            const error = new Error(`Error resending reset: ${err}`);
+            return next(error);
         });
 };
 
@@ -208,9 +201,8 @@ exports.postResetPassword = (req, res, next) => {
                             });
                         })
                         .catch((err) => {
-                            console.log("Cannot save reset password", err);
-                            req.flash("forgetErr", "Technical error occurred, Please try again later.");
-                            return res.redirect("/reset_password");
+                            const error = new Error(`Cannot save reset password: ${err}`);
+                            return next(error);
                         });
                 });
             }
@@ -218,7 +210,8 @@ exports.postResetPassword = (req, res, next) => {
             return res.redirect("/reset_password");
         })
         .catch((err) => {
-            console.log("Error resetting password", err);
+            const error = new Error(`Error resetting password: ${err}`);
+            return next(error);
         });
 };
 
@@ -240,8 +233,8 @@ exports.getConfirmReset = (req, res, next) => {
                 return res.redirect("/reset_password");
             })
             .catch((err) => {
-                console.log("Error finding reset token", err);
-                res.redirect("/reset_password");
+                const error = new Error(`Error finding reset token: ${err}`);
+                return next(error);
             });
     }
     return res.redirect("/reset_password");
@@ -288,7 +281,7 @@ exports.postConfirmReset = (req, res, next) => {
             return res.redirect(`/confirm_reset/${token}`);
         })
         .catch((err) => {
-            console.log("Error finding reset token", err);
-            return res.redirect("/reset_password");
+            const error = new Error(`Error finding reset token: ${err}`);
+            return next(error);
         });
 };

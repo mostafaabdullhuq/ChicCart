@@ -30,8 +30,8 @@ exports.postAddProduct = (req, res, next) => {
             }
         })
         .catch((err) => {
-            console.log("Cannot add product", err);
-            res.redirect("/admin/products/create");
+            const error = new Error(`Cannot add product: ${err}`);
+            return next(error);
         });
 };
 
@@ -69,8 +69,8 @@ exports.getAdminProducts = async (req, res, next) => {
             });
         })
         .catch((err) => {
-            console.log("Cannot get all products", err);
-            res.redirect("/");
+            const error = new Error(`Cannot get admin products: ${err}`);
+            return next(error);
         });
 };
 
@@ -90,8 +90,8 @@ exports.getEditProduct = async (req, res, next) => {
             } else res.redirect("/admin/products/create");
         })
         .catch((err) => {
-            console.log("Cannot get edit product", err);
-            res.redirect("/admin/products");
+            const error = new Error(`Cannot get edit product: ${err}`);
+            return next(error);
         });
 };
 
@@ -111,8 +111,8 @@ exports.postEditProduct = async (req, res, next) => {
             res.redirect(`/product/${product._id}`);
         })
         .catch((err) => {
-            console.log("Cannot edit product", err);
-            res.redirect(`/admin/products/${productID}/edit`);
+            const error = new Error(`Cannot edit product: ${err}`);
+            return next(error);
         });
 };
 
@@ -126,7 +126,7 @@ exports.getDeleteProduct = async (req, res, next) => {
             res.redirect("/admin/products");
         })
         .catch((err) => {
-            console.log("Cannot delete product", err);
-            res.redirect("/admin/products");
+            const error = new Error(`Cannot delete product: ${err}`);
+            return next(error);
         });
 };
