@@ -13,20 +13,24 @@ exports.getAddProduct = (req, res, next) => {
 
 // ADD NEW PRODUCT POST REQUEST
 exports.postAddProduct = (req, res, next) => {
+    let images = [];
+    const reqFiles = req.files;
+    reqFiles.forEach((file) => {
+        images.push(file.path.replace("public/", "/"));
+    });
     let product = new Product({
         title: req.body.title,
         description: req.body.description,
         price: +req.body.price,
         shippingPrice: +req.body.shippingPrice,
-        images: req.body.images.split("\n"),
+        images: images,
         userID: req.user._id,
     });
-
     product
         .save()
         .then((createdProduct) => {
             if (createdProduct) {
-                return res.redirect(`/admin/products`);
+                return res.redirect(`/product/${createdProduct._id}`);
             }
         })
         .catch((err) => {
@@ -97,6 +101,7 @@ exports.getEditProduct = async (req, res, next) => {
 
 exports.postEditProduct = async (req, res, next) => {
     let productID = req.params.id;
+    const reqFiles = req.files;
     Product.findOne({
         _id: productID,
         userID: req.user._id,
@@ -106,7 +111,14 @@ exports.postEditProduct = async (req, res, next) => {
             product.price = +req.body.price;
             product.shippingPrice = +req.body.shippingPrice;
             product.description = req.body.description;
-            product.images = req.body.images?.trim()?.split("\n");
+            if (reqFiles?.length) {
+                let images = [];
+                reqFiles.forEach((file) => {
+                    images.push(file.path.replace("public/", "/"));
+                });
+                product.images = images;
+            }
+
             product.save();
             res.redirect(`/product/${product._id}`);
         })

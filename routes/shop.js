@@ -7,6 +7,7 @@ const { Router } = require("express"),
     { getProductValidator } = require("./../middlewares/validators/productValidator"),
     { createOrderValidator } = require("./../middlewares/validators/orderValidator");
 
+// ROUTES
 router.get(["/home", "/index", ""], getIndex); // GET HOME PAGE
 router.get("/products", getProducts); // GET ALL PRODUCTS PAGE
 router.get("/product/:id", getProductValidator, getProduct); // GET PRODUCT DETAILS PAGE

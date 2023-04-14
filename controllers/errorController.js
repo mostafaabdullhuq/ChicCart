@@ -7,6 +7,8 @@ exports.get404 = (req, res, next) => {
 };
 
 exports.get500 = (error, req, res, next) => {
+    console.log("Error occured");
+    console.log(error);
     res.statusCode = 500;
     res.render("500", {
         pageTitle: "Unexpected error",

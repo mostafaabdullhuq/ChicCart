@@ -2,7 +2,7 @@
 <%- include('./../layouts/header.ejs') %>
 <!--!! content start !!-->
 <main class="content justify-center">
-    <form method="post" action="/admin/products/<%= product._id %>"
+    <form method="post" action="/admin/products/<%= product._id %>" enctype="multipart/form-data"
         class="login-form bg-white p-5 py-8 rounded-2xl shadow-xl border max-w-[700px] flex gap-3 flex-col w-full">
         <% if (errors.length) { %>
         <div class="text-center p-3 bg-red-500 text-white rounded-lg text-lg">
@@ -21,10 +21,19 @@
         <input type="hidden" name="_csrf" value="<%= csrfToken %>">
 
         <input type="text" class="form-control" name="title" placeholder="Title" value="<%= product.title %>" />
-        <textarea class="form-control resize-none min-h-[300px]" name="images" placeholder="Images"><% for (let image of product.images) { %><%=image+'\n'%><%}%>
-        </textarea>
-        <input class="form-control" type="number" name="price" placeholder="Price" step="0.01"
-            value="<%= product.price %>" />
+        <div class="product-images-uploader select-none">
+            <i class="fa-solid fa-arrow-up-from-bracket text-5xl text-blue-500 mb-4"></i>
+            <p class="text-slate-900 text-2xl font-semibold">Drag & drop product images here</p>
+            <p class="text-slate-600 text-lg">or
+                <span class="text-blue-500 font-semibold hover:underline transition-all browse-files">Browse
+                    files</span> from your
+                device
+            </p>
+            <p class="text-slate-700 text-sm files-info">Only PNG, JPEG images are allowed.</p>
+        </div>
+        <input class="form-control files-input  hidden cursor-pointer" type="file" name="images" multiple
+            accept=".jpg,.jpeg,.png"> <input class="form-control" type="number" name="price" placeholder="Price"
+            step="0.01" value="<%= product.price %>" />
         <input class="form-control" type="number" name="shippingPrice" placeholder="Shipping Price" step="0.01"
             value="<%= product.shippingPrice %>" />
         <textarea class="form-control resize-none min-h-[300px]" name="description"
@@ -32,6 +41,70 @@
         <button class="form-submit" type="submit">Edit Product</button>
     </form>
 </main>
+<script>
+    const imageUploader = document.querySelector(".product-images-uploader"),
+        filesInput = document.querySelector(".files-input"),
+        filesInfo = document.querySelector(".files-info"),
+        browseFiles = document.querySelector(".browse-files");
+
+
+    // FUNCTION THAT CREATES AN EVENT THEN SIMULATES THE OCCURRENCE OF IT ON SPECIFIC ELEMENT
+    function triggerEvent(eventName, element) {
+        event = document.createEvent("HTMLEvents");
+        event.initEvent(eventName, true, false)
+        element.dispatchEvent(event)
+    }
+
+    browseFiles.addEventListener("click", (e) => {
+        filesInput.click()
+    })
+
+
+
+    // LISTEN FOR EVENT WHEN THE DRAGGING IS MOVING INSIDE THE ELEMENT
+    imageUploader.addEventListener("dragover", (e) => {
+        imageUploader.classList.add("active")
+        e.preventDefault()
+    })
+
+    // LISTEN FOR EVENT WHEN THE DRAGGING IS MOVING OUT OF THE ELEMENT
+    imageUploader.addEventListener("dragleave", (e) => {
+        imageUploader.classList.remove("active")
+    })
+
+    // LISTEN FOR EVENT WHEN THE ITEM IS DROPPED INTO THE ELEMENT
+    imageUploader.addEventListener("drop", (e) => {
+
+        e.preventDefault()
+        let filteredFiles = new DataTransfer()
+        // GET THE DROPPED FILES LIST
+        const droppedFiles = e.dataTransfer.files;
+        for (let file of droppedFiles) {
+            // IF THE DROPPED FILE IS OF TYPE PNG/JPEG, ADD IT TO THE FILTERED DATA TRANSFER LIST
+            if (file.type === 'image/png' || file.type === 'image/jpg' || file.type === 'image/jpeg') {
+                filteredFiles.items.add(file)
+            }
+        }
+
+        imageUploader.classList.add("active")
+
+        // SET THE FILE INPUT FILES TO THE FILTERED FILES
+        filesInput.files = filteredFiles.files
+
+        // TRIGGER THE CHANGE EVENT ON FILE INPUT
+        triggerEvent("change", filesInput)
+    })
+
+    filesInput.addEventListener("change", function (e) {
+        if (this.files.length > 0) {
+            imageUploader.classList.add("active")
+            filesInfo.innerText = `(${this.files.length}) image/s selected.`
+        } else {
+            imageUploader.classList.remove("active")
+            filesInfo.innerText = 'Only PNG, JPEG images are allowed.'
+        }
+    })
+</script>
 <!--!! content end !!-->
 <%- include('./../layouts/footer.ejs') %>
 <%- include('./../layouts/main_end.ejs') %>

@@ -11,7 +11,8 @@ const express = require("express"),
     sessionFlash = require("connect-flash"),
     env = require("dotenv"),
     MongoStore = require("connect-mongodb-session"),
-    mongoose = require("mongoose");
+    mongoose = require("mongoose"),
+    multer = require("multer");
 
 const app = express(),
     envVars = env.config().parsed,
@@ -25,7 +26,7 @@ const app = express(),
 app.set("view engine", "ejs");
 app.set("views", "views");
 
-//! SETUP PARSER !//
+//! SETUP PARSERS !//
 app.use(
     bodyParser.urlencoded({
         extended: false,
@@ -54,6 +55,12 @@ app.use((req, res, next) => {
     next();
 });
 
+// FOR 500 PAGE
+app.use((error, req, res, next) => {
+    res.locals.csrfToken = req.csrfToken();
+    next();
+});
+
 //! MIDDLEWARE FOR SAVING DATA IN SESSION FOR A SMALL PERIOD OF TIME (MUST BE DECLARED AFTER SESSION DECLARED)
 app.use(sessionFlash());
 
@@ -65,6 +72,7 @@ app.use((req, res, next) => {
             .then(async (user) => {
                 req.user = user;
                 res.locals.loginUser = user.username;
+                res.locals.isAdmin = user.isAdmin;
                 let userCart = await user.getCart();
                 res.locals.cartItemsCount = userCart.itemsCount;
                 next();
@@ -74,12 +82,14 @@ app.use((req, res, next) => {
                 req.user = null;
                 res.locals.loginUser = null;
                 res.locals.cartItemsCount = 0;
+                res.locals.isAdmin = false;
                 next();
             });
     } else {
         req.user = null;
         res.locals.loginUser = null;
         res.locals.cartItemsCount = 0;
+        res.locals.isAdmin = false;
         next();
     }
 });

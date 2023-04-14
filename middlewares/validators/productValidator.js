@@ -1,4 +1,4 @@
-const { body, param, validationResult } = require("express-validator"),
+const { body, param, validationResult, check } = require("express-validator"),
     User = require("./../../models/user"),
     VIEW_PREFIX = "admin/";
 
@@ -64,9 +64,15 @@ exports.addProductValidator = [
         .isString()
         .trim()
         .withMessage("Invalid product description format."),
-    body("images").notEmpty().withMessage("Product images is required.").bail().trim(),
     body("price").notEmpty().withMessage("Product price is required.").bail().isNumeric().withMessage("Invalid product price."),
     body("shippingPrice").notEmpty().withMessage("Product shipping price is required.").bail().isNumeric().withMessage("Invalid product shipping price."),
+    check("images").custom((value, { req }) => {
+        if (!req.files?.length) {
+            throw new Error("product images are required.");
+        }
+        return true;
+    }),
+    // check("images").notEmpty().withMessage("Product images is required.").bail().trim(),
 
     // get validation result
     (req, res, next) => {
@@ -118,7 +124,6 @@ exports.postEditProductValidator = [
         .isString()
         .trim()
         .withMessage("Invalid product description format."),
-    body("images").notEmpty().withMessage("Product images is required.").bail().trim(),
     body("price").notEmpty().withMessage("Product price is required.").bail().isNumeric().withMessage("Invalid product price."),
     body("shippingPrice").notEmpty().withMessage("Product shipping price is required.").bail().isNumeric().withMessage("Invalid product shipping price."),
 
@@ -132,7 +137,6 @@ exports.postEditProductValidator = [
             const productID = req.params.id;
             return res.redirect(`/admin/products/${productID}/edit`);
         }
-
         // if there's no errors in validation, go to the next middleware
         next();
     },
