@@ -528,3 +528,13 @@
 .product-images-uploader.active {
     @apply opacity-100;
 }
+
+.pagination-container {
+    @apply w-full flex gap-1 justify-center p-2;
+}
+.pagination-item {
+    @apply p-2 border disabled:opacity-40 border-blue-500 text-blue-500 font-semibold  hover:text-white hover:bg-blue-600 transition-colors rounded-md px-4 aria-disabled:bg-blue-300 aria-disabled:border-blue-300 aria-disabled:text-white aria-disabled:pointer-events-none;
+}
+.pagination-item.active {
+    @apply bg-blue-500 text-white;
+}

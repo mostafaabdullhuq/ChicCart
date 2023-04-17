@@ -2,7 +2,8 @@ const Product = require("../models/product"),
     VIEW_PREFIX = "admin/",
     Order = require("./../models/order"),
     { unlink } = require("fs"),
-    { join } = require("path");
+    { join } = require("path"),
+    { prodsPagination, prodsSort } = require("./utilsController");
 
 function deleteProdImgs(images) {
     images.forEach((image) => {
@@ -53,36 +54,16 @@ exports.postAddProduct = (req, res, next) => {
 };
 
 exports.getAdminProducts = async (req, res, next) => {
-    const sortType = req?.query?.sort;
-    let sortOption;
-    switch (sortType) {
-        case "newest":
-            sortOption = "Newest Arrivals";
-            break;
-        case "rating":
-            sortOption = "Customer Reviews";
-            break;
-        case "title":
-            sortOption = "Product Name";
-            break;
-        case "price_h_to_l":
-            sortOption = "Price: High to Low";
-            break;
-        case "price_l_to_h":
-            sortOption = "Price: Low to High";
-            break;
-        default:
-            sortOption = "Product Name";
-            break;
-    }
-    req.user
-        .getProducts(sortType)
+    const sorter = prodsSort(req?.query?.sort);
+
+    return req.user
+        .getProducts(sorter.type)
         .then((products) => {
-            res.render(`${VIEW_PREFIX}admin_products`, {
+            return res.render(`${VIEW_PREFIX}admin_products`, {
                 pageTitle: "Admin Products",
                 products: products,
                 path: "admin_products",
-                sortType: sortOption,
+                sortType: sorter.option,
             });
         })
         .catch((err) => {

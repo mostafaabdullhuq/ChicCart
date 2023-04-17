@@ -61,6 +61,25 @@
         <% } %>
     </section>
     <!--!! website products end !!-->
+    <% if(pagination) { %>
+    <section class="pagination-container">
+        <a class="pagination-item" <% if (!pagination.hasPrevPage) { %> aria-disabled="true" <% } %>
+            href="?page=<%= pagination.currentPage - 1 %>"><i class="fa-solid fa-chevron-left"></i></a>
+        <% for (let page of pagination.pages) { %>
+
+
+        <% if (page === '...') { %>
+        <p class="pagination-item pointer-events-none"><%= page %></p>
+
+        <% } else { %>
+        <a class="pagination-item <% if (page === pagination.currentPage) { %> active <% } %>"
+            href="?page=<%= page %>"><%= page %></a>
+        <% } %>
+        <% } %>
+        <a class="pagination-item" <% if (!pagination.hasNextPage) { %> aria-disabled="true" <% } %>
+            href="?page=<%= pagination.currentPage + 1 %>"><i class="fa-solid fa-chevron-right"></i></a>
+    </section>
+    <% } %>
 </main>
 <script>
     const sortContainer = document.querySelector(".sort-container"),

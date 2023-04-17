@@ -1,5 +1,6 @@
 const Product = require("../models/product"),
-    VIEW_PREFIX = "shop/";
+    VIEW_PREFIX = "shop/",
+    { prodsPagination, prodsSort } = require("./utilsController");
 
 // HOMEPAGE
 exports.getIndex = (req, res, next) => {
@@ -31,44 +32,39 @@ exports.getIndex = (req, res, next) => {
 };
 
 // PRODUCTS PAGE
-exports.getProducts = (req, res, next) => {
-    const reqSortType = req?.query?.sort;
-    let sortType;
-    let sortOption;
-    switch (reqSortType) {
-        case "newest":
-            sortOption = "Newest Arrivals";
-            sortType = { createdAt: -1 };
-            break;
-        case "rating":
-            sortOption = "Customer Reviews";
-            sortType = { rating: -1 };
-            break;
-        case "title":
-            sortOption = "Product Name";
-            sortType = { title: 1 };
-            break;
-        case "price_h_to_l":
-            sortOption = "Price: High to Low";
-            sortType = { price: -1 };
-            break;
-        case "price_l_to_h":
-            sortOption = "Price: Low to High";
-            sortType = { price: 1 };
-            break;
-        default:
-            sortOption = "Product Name";
-            sortType = { title: 1 };
-            break;
+exports.getProducts = async (req, res, next) => {
+    // FOR PAGINATION
+
+    const pagination = await prodsPagination(+req.query?.page || 1),
+        sorter = prodsSort(req?.query?.sort);
+    if (pagination) {
+        return Product.find()
+            .skip((pagination.currentPage - 1) * pagination.perPage) // FOR PAGINATION (SKIP FIRST N PRODUCTS)
+            .limit(pagination.perPage)
+            .sort(sorter.type)
+            .then((products) => {
+                res.render(`${VIEW_PREFIX}products`, {
+                    products: products,
+                    pageTitle: "Shop",
+                    path: "all_products",
+                    sortType: sorter.option,
+                    pagination: pagination,
+                });
+            })
+            .catch((err) => {
+                const error = new Error(`Cannot get all products: ${err}`);
+                return next(error);
+            });
     }
-    Product.find()
-        .sort(sortType)
+    return Product.find()
+        .sort(sorter.type)
         .then((products) => {
             res.render(`${VIEW_PREFIX}products`, {
                 products: products,
                 pageTitle: "Shop",
                 path: "all_products",
-                sortType: sortOption,
+                sortType: sorter.option,
+                pagination: pagination,
             });
         })
         .catch((err) => {
