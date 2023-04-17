@@ -1,6 +1,9 @@
 const PromoCode = require("../models/promocode"),
     Order = require("../models/order"),
-    VIEW_PREFIX = "shop/";
+    VIEW_PREFIX = "shop/",
+    fs = require("fs"),
+    path = require("path"),
+    PdfDocument = require("pdfkit-table");
 
 // CHECKOUT PAGE
 exports.getCheckout = async (req, res, next) => {
@@ -124,5 +127,200 @@ exports.postCreateOrder = (req, res, next) => {
         .catch((err) => {
             const error = new Error(`Error while creating order: ${err}`);
             return next(error);
+        });
+};
+
+exports.getOrder = (req, res, next) => {
+    return Order.findOne({
+        _id: req.params.id,
+    })
+        .populate("userID")
+        .populate("promoCode")
+        .then((order) => {
+            return res.render(`${VIEW_PREFIX}order`, {
+                path: null,
+                pageTitle: `Order Details`,
+                order: order,
+            });
+        })
+        .catch((err) => {
+            return next(`get all orders error ${err}`);
+        });
+};
+
+exports.getUserOrders = (req, res, next) => {
+    return Order.find({
+        userID: req.user._id,
+    })
+        .populate("userID")
+        .populate("promoCode")
+        .then((orders) => {
+            return res.render(`${VIEW_PREFIX}orders`, {
+                path: null,
+                pageTitle: `All Orders`,
+                orders: orders,
+            });
+        })
+        .catch((err) => {
+            return next(`get all orders error ${err}`);
+        });
+};
+
+// FUNCTION THAT GENERATES AN ORDER INVOICE PDF ON THE FLY
+function generateInvoice(order, invoiceName, req, res, next) {
+    const pdfDoc = new PdfDocument({ size: "A4" });
+    try {
+        // POPULATE PDF FILE WITH DETAILS
+        pdfDoc.pipe(res); // IF YOU WANT TO SEND THE PDF TO THE RESPONSE ONLY
+        pdfDoc.font("Helvetica-Bold");
+        pdfDoc.fontSize(20).text(`Order Invoice`, {
+            underline: true,
+            align: "center",
+        });
+        pdfDoc.moveDown(); // Move line down
+        let paymentMethod = "";
+        if (order.paymentMethod === 1) {
+            paymentMethod = "Credit Card";
+        } else if (order.paymentMethod === 2) {
+            paymentMethod = "Cash On Delivery";
+        } else {
+            paymentMethod = "PayPal";
+        }
+
+        //! ORDER DETAILS TABLE
+        pdfDoc.table(
+            // table content
+            {
+                headers: [
+                    { align: "left", valign: "center" },
+                    { align: "left", valign: "center" },
+                ],
+                rows: [
+                    ["ID:", order._id],
+                    ["Date:", new Date(order.createdAt).toDateString()],
+                    ["Payment:", paymentMethod],
+                ],
+            },
+            // table options
+            {
+                prepareRow: (row, indexColumn, indexRow, rectRow, rectCell) => {
+                    pdfDoc.font("Helvetica-Bold").fontSize(11);
+                    // indexColumn === 2 && pdfDoc.addBackground(rectRow, "gray", 0.1);
+                },
+                hideHeader: true,
+                divider: {
+                    horizontal: { disabled: true, width: 0.5, opacity: 0.5 },
+                },
+                columnsSize: [70, 400],
+                title: "Order Details",
+            }
+        );
+
+        pdfDoc.moveDown();
+
+        //! SHIPPING DETAILS TABLE
+        pdfDoc.table(
+            // table content
+            {
+                headers: [{ align: "left", valign: "center" }],
+                rows: [
+                    [`${order.shippingDetails.firstName} ${order.shippingDetails.lastName}`],
+                    [`${order.shippingDetails.buildingNo} ${order.shippingDetails.streetAddress}`],
+                    [`${order.shippingDetails.state}, ${order.shippingDetails.city}`],
+                    [`${order.shippingDetails.postalCode}`],
+                    [`${order.shippingDetails.phoneNumber}`],
+                ],
+            },
+            // table options
+            {
+                prepareRow: (row, indexColumn, indexRow, rectRow, rectCell) => {
+                    pdfDoc.font("Helvetica").fontSize(11);
+                },
+                hideHeader: true,
+                divider: {
+                    horizontal: { disabled: true, width: 0.5, opacity: 0.5 },
+                },
+                title: "Shipping Details",
+            }
+        );
+        pdfDoc.moveDown();
+        //! ORDER ITEMS TABLE
+        const itemsTableRows = [];
+        order.items.forEach((item) => {
+            itemsTableRows.push([item.title, item.quantity, "$" + item.price * item.quantity]);
+        });
+        pdfDoc.table(
+            // table content
+            {
+                headers: [
+                    { label: "Product title", width: 300, align: "center", valign: "center" },
+                    { label: "Qty", width: 50, align: "center", valign: "center" },
+                    { label: "Total price", width: 100, align: "center", valign: "center" },
+                ],
+                rows: itemsTableRows,
+            },
+            // table options
+            {
+                prepareHeader: () => pdfDoc.font("Helvetica-Bold").fontSize(12),
+                prepareRow: (row, indexColumn, indexRow, rectRow, rectCell) => {
+                    pdfDoc.font("Helvetica").fontSize(10);
+                    indexColumn === 0 && pdfDoc.addBackground(rectRow, "blue", 0.1);
+                },
+                padding: 10,
+            }
+        );
+
+        //! ORDER SUMMARY DETAILS TABLE
+        pdfDoc.table(
+            // table content
+            {
+                headers: [
+                    { align: "left", valign: "center" },
+                    { align: "center", valign: "center" },
+                ],
+                rows: [
+                    ["SUBTOTAL", "$" + order.price],
+                    ["SHIPPING", "$" + order.shipping],
+                    ["DISCOUNT", "- $" + order.discountValue],
+                    ["TOTAL", "$" + (order.price + order.shipping - order.discountValue)],
+                ],
+            },
+            // table options
+            {
+                prepareRow: (row, indexColumn, indexRow, rectRow, rectCell) => {
+                    pdfDoc.font("Helvetica-Bold").fontSize(11);
+                },
+                hideHeader: true,
+                width: 200,
+                x: 320,
+                divider: {
+                    horizontal: { disabled: true, width: 0.5, opacity: 0.5 },
+                },
+            }
+        );
+    } catch (err) {
+        console.log(err);
+    }
+    return pdfDoc.end(); // END GENERATING THE PDF
+}
+
+exports.getOrderInvoice = (req, res, next) => {
+    const orderID = req.params.id;
+    Order.findById(orderID)
+        .populate("userID")
+        .then((order) => {
+            if (order && (order?.userID?.toString() === req?.user?._id?.toString() || req.user.isAdmin)) {
+                const invoiceName = `invoice-${orderID}.pdf`;
+                // const pdfDoc = new PdfDocument({ size: "A4" });
+
+                res.setHeader("Content-Type", "application/pdf"); // TO TELL THE BROWSER THAT THE FILE IS PDF
+                res.setHeader("Content-Disposition", `inline; filename="${invoiceName}"`); // TO TELL THE BROWSER to open the file in the browser and set it's name
+                return generateInvoice(order, invoiceName, req, res, next);
+            }
+
+            return res.redirect("/orders");
+        })
+        .catch((err) => {
+            return next(`Cannot get order invoice, ${err}`);
         });
 };

@@ -1,0 +1,81 @@
+<%- include('./../layouts/main_start.ejs') %>
+<%- include('./../layouts/header.ejs') %>
+<!--!! content start !!-->
+<main class="content">
+
+
+
+    <table class="table-auto border bg-white rounded-lg shadow-sm overflow-hidden w-full">
+        <thead>
+            <tr class="text-gray-700  uppercase">
+                <th class="pl-6 p-2 py-3 border-b text-left font-extrabold">Order ID</th>
+                <th class="p-2 py-3 border-b text-left font-extrabold">Created</th>
+                <th class="p-2 py-3 border-b text-left font-extrabold">Customer</th>
+                <th class="p-2 py-3 border-b text-left font-extrabold">Products</th>
+                <th class="p-2 py-3 border-b text-left font-extrabold">Promo Code</th>
+                <th class="p-2 py-3 border-b text-left font-extrabold">Price</th>
+                <th class="pr-6 p-2 py-3 border-b text-left font-extrabold">Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            <% for (let order of orders) { let months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];  %>
+            <tr class="font-[450] text-gray-500">
+                <td class="pl-6 p-2 py-4 border-b text-left uppercase">
+                    <a class="cursour-pointer hover:underline text-slate-700 font-bold"
+                        href="/order/<%= order._id %>"><%= order._id %></a>
+                </td>
+                <td class="p-2 py-4 border-b text-left">
+                    <%= `${order.createdAt.getDate()} ${months[order.createdAt.getMonth()]} ${order.createdAt.getFullYear()}` %>
+                </td>
+                <td class="p-2 py-4 border-b text-left"><%= order.userID.firstName + ' ' + order.userID.lastName %>
+                </td>
+                <td class="p-2 py-4 border-b text-left"><%= order.items.length %></td>
+                <td class="p-2 py-4 border-b text-left uppercase"><%= order.promoCode?.code ?? '-' %></td>
+                <td class="p-2 py-4 border-b text-left">$<%= order.price + order.shipping %></td>
+                <td class="pr-6 p-2 py-4  border-b text-left">
+                    <form action="/admin/order/<%= order._id %>/change" method="POST">
+                        <input type="hidden" name="_csrf">
+                        <select name="status" class="status cursor-pointer px-4 text-center py-1.5 rounded-lg
+                        <% if(order.status === 1) { %>
+                            bg-yellow-100 text-yellow-700
+                        <% } %>
+                        <% if(order.status === 2) { %>
+                            bg-cyan-100 text-cyan-700
+                        <% } %>
+                        <% if(order.status === 3) { %>
+                            bg-green-100 text-green-700
+                        <% } %>
+                        <% if(order.status === 4) { %>
+                            bg-red-100 text-red-700
+                        <% } %>
+                        
+                         font-semibold appearance-none outline-none select-none">
+                            <!-- <span class="px-4 py-2 rounded-lg bg-yellow-100 text-yellow-700 font-semibold">Pending</span> -->
+                            <option value="1" <% if (order.status === 1) { %> selected <% } %>>Pending</option>
+                            <option value="2" <% if (order.status === 2) { %> selected <% } %>>Shipped</option>
+                            <option value="3" <% if (order.status === 3) { %> selected <% } %>>Delivered</option>
+                            <option value="4" <% if (order.status === 4) { %> selected <% } %>>Cancelled</option>
+                        </select>
+                    </form>
+
+                </td>
+
+
+            </tr>
+            <% } %>
+        </tbody>
+    </table>
+</main>
+<script>
+    let orderStatusSelect = document.querySelectorAll("select.status");
+
+
+    orderStatusSelect.forEach(select => {
+        select.addEventListener("change", (e) => {
+            e.target.parentElement.submit()
+        })
+    })
+</script>
+<!--!! content start !!-->
+<%- include('./../layouts/footer.ejs') %>
+<%- include('./../layouts/main_end.ejs') %>

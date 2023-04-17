@@ -117,6 +117,11 @@ const OrderSchema = new Schema({
         required: true,
         default: new Date(),
     },
+    status: {
+        type: Number,
+        enum: [1, 2, 3, 4], // PENDING, SHIPPED, DELIVERED, CANCELLED
+        default: 1,
+    },
 });
 
 module.exports = model("Order", OrderSchema);

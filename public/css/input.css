@@ -479,7 +479,7 @@
 }
 
 .checkout-form-control {
-    @apply p-3.5 w-full placeholder:text-gray-400 outline-blue-500 bg-slate-50 rounded-md border border-slate-200;
+    @apply p-3.5 w-full placeholder:text-gray-400 outline-blue-500 bg-slate-50 rounded-md border border-slate-200 disabled:bg-gray-100 disabled:text-slate-500;
 }
 .checkout-section-title {
     @apply text-xl  mb-4 font-semibold text-slate-600;

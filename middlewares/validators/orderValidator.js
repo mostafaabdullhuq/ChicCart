@@ -119,3 +119,20 @@ exports.createOrderValidator = [
         next();
     },
 ];
+
+exports.changeOrderStatusValidator = [
+    // VALIDATE FIRST NAME
+
+    param("id").isMongoId().bail(),
+    body("status").toInt().isIn([1, 2, 3, 4]),
+    // get validation result
+    (req, res, next) => {
+        const validationErr = validationResult(req);
+        // if there's error in validation, don't pass the middleware and render the signup page with errors
+        if (!validationErr.isEmpty()) {
+            return res.redirect("/admin/orders");
+        }
+        // if there's no errors in validation, go to the next middleware
+        next();
+    },
+];

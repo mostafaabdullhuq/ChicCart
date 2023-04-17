@@ -67,6 +67,12 @@
                 Products</a></li>
         <li class="nav-item <%=  path == 'add_product' ? 'nav-item-active' : ''  %>"><a
                 href="/admin/products/create">Add Product</a></li>
+        <li class="nav-item <%=  path == 'admin_orders' ? 'nav-item-active' : ''  %>"><a href="/admin/orders">Admin
+                Orders</a></li>
+        <% } else { %>
+        <li class="nav-item <%=  path == 'admin_orders' ? 'nav-item-active' : ''  %>"><a href="/orders">Your
+                Orders</a></li>
+
         <% } %>
         <li class="nav-item"><a href="">About</a></li>
         <li class="nav-item"><a href="">Contact</a></li>

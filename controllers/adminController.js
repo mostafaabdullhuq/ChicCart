@@ -1,5 +1,18 @@
 const Product = require("../models/product"),
-    VIEW_PREFIX = "admin/";
+    VIEW_PREFIX = "admin/",
+    Order = require("./../models/order"),
+    { unlink } = require("fs"),
+    { join } = require("path");
+
+function deleteProdImgs(images) {
+    images.forEach((image) => {
+        unlink(join(__dirname, "..", "public", image), (err) => {
+            if (err) {
+                throw new Error("Cannot delete product image", err);
+            }
+        });
+    });
+}
 
 // ADD PRODUCT PAGE
 exports.getAddProduct = (req, res, next) => {
@@ -112,6 +125,7 @@ exports.postEditProduct = async (req, res, next) => {
             product.shippingPrice = +req.body.shippingPrice;
             product.description = req.body.description;
             if (reqFiles?.length) {
+                deleteProdImgs(product.images);
                 let images = [];
                 reqFiles.forEach((file) => {
                     images.push(file.path.replace("public/", "/"));
@@ -134,11 +148,48 @@ exports.getDeleteProduct = async (req, res, next) => {
         userID: req.user._id,
     })
         .then((deleteResult) => {
-            console.log(deleteResult);
+            deleteProdImgs(deleteResult.images);
             res.redirect("/admin/products");
         })
         .catch((err) => {
             const error = new Error(`Cannot delete product: ${err}`);
             return next(error);
+        });
+};
+
+exports.getAllOrders = (req, res, next) => {
+    return Order.find({})
+        .populate("userID")
+        .populate("promoCode")
+        .then((orders) => {
+            return res.render(`${VIEW_PREFIX}orders`, {
+                path: null,
+                pageTitle: `All Orders`,
+                orders: orders,
+            });
+        })
+        .catch((err) => {
+            return next(`get all orders error ${err}`);
+        });
+};
+
+exports.postChangeOrderStatus = (req, res, next) => {
+    const orderID = req.params.id,
+        status = +req.body.status;
+    return Order.findOne({
+        _id: orderID,
+    })
+        .then((order) => {
+            if (order) {
+                order.status = status;
+                return order.save();
+            }
+            return null;
+        })
+        .then((savedOrder) => {
+            return res.redirect("/admin/orders");
+        })
+        .catch((err) => {
+            return next(`Change order status error ${err}`);
         });
 };

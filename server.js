@@ -3,6 +3,7 @@ const express = require("express"),
     adminRoutes = require("./routes/admin"),
     shopRoutes = require("./routes/shop"),
     authRoutes = require("./routes/auth"),
+    userRoutes = require("./routes/user"),
     path = require("path"),
     errorController = require("./controllers/errorController"),
     User = require("./models/user"),
@@ -11,8 +12,7 @@ const express = require("express"),
     sessionFlash = require("connect-flash"),
     env = require("dotenv"),
     MongoStore = require("connect-mongodb-session"),
-    mongoose = require("mongoose"),
-    multer = require("multer");
+    mongoose = require("mongoose");
 
 const app = express(),
     envVars = env.config().parsed,
@@ -55,7 +55,7 @@ app.use((req, res, next) => {
     next();
 });
 
-// FOR 500 PAGE
+//! FOR 500 PAGE
 app.use((error, req, res, next) => {
     res.locals.csrfToken = req.csrfToken();
     next();
@@ -121,6 +121,7 @@ app.use(["/checkout", "/cart"], (req, res, next) => {
 app.use("/admin", adminRoutes); // MAKE PREFIX /admin TO ALL ROUTES IN THIS FILE
 app.use(authRoutes);
 app.use(shopRoutes);
+app.use(userRoutes);
 
 app.use("/", errorController.get404); // IF ALL UPPER MIDDLEWARES NOT MATCHED, THEN THIS MIDDLEWARE WILL BE ACTIVATED AS 404 ERROR PAGE
 

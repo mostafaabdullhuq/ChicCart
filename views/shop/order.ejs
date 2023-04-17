@@ -1,0 +1,182 @@
+<%- include('./../layouts/main_start.ejs') %>
+<%- include('./../layouts/header.ejs') %>
+<!--!! content start !!-->
+<main class="checkout-container">
+    <div class="checkout-sections-container">
+        <div class="checkout-section-wrapper">
+            <h1 class="checkout-section-title">Shipping Details</h1>
+            <div class="checkout-section" id="checkoutForm">
+                <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                <div class="checkout-form-row">
+                    <div class="checkout-form-control-container w-1/2">
+                        <label for="firstName">First Name</label>
+                        <input id="firstName" class="checkout-form-control" type="text" name="firstName"
+                            value="<%= order.shippingDetails.firstName ?? '' %>" disabled />
+                    </div>
+                    <div class="checkout-form-control-container w-1/2">
+                        <label for="lastName">Last Name</label>
+                        <input id="lastName" class="checkout-form-control" type="text" name="lastName"
+                            value="<%= order.shippingDetails.lastName ?? '' %>" disabled />
+                    </div>
+                </div>
+                <div class="checkout-form-row">
+                    <div class="checkout-form-control-container w-4/5">
+                        <label for="streetAddress">Street Address</label>
+                        <input id="streetAddress" class="checkout-form-control" type="text" name="streetAddress"
+                            value="<%= order.shippingDetails.streetAddress ?? '' %>" disabled />
+                    </div>
+                    <div class="checkout-form-control-container w-1/5">
+                        <label for="buildingNo">Building No</label>
+                        <input id="buildingNo" class="checkout-form-control" type="text" name="buildingNo"
+                            value="<%= order.shippingDetails.buildingNo ?? '' %>" disabled />
+                    </div>
+                </div>
+                <div class="checkout-form-row">
+                    <div class="checkout-form-control-container w-1/3">
+                        <label for="city">City</label>
+                        <input id="city" class="checkout-form-control" type="text" name="city"
+                            value="<%= order.shippingDetails.city ?? '' %>" disabled />
+                    </div>
+                    <div class="checkout-form-control-container w-1/3">
+                        <label for="state">State</label>
+                        <input id="state" class="checkout-form-control" type="text" name="state"
+                            value="<%= order.shippingDetails.state ?? '' %>" disabled />
+                    </div>
+                    <div class="checkout-form-control-container w-1/3">
+                        <label for="postalCode">Postal Code</label>
+                        <input id="postalCode" class="checkout-form-control" type="text" name="postalCode"
+                            value="<%= order.shippingDetails.postalCode ?? '' %>" disabled />
+                    </div>
+                </div>
+                <div class="checkout-form-row">
+                    <div class="checkout-form-control-container w-full">
+                        <label for="phoneNumber">Phone Number</label>
+                        <input id="phoneNumber" class="checkout-form-control" type="text" name="phoneNumber"
+                            value="<%= order.shippingDetails.phoneNumber ?? '' %>" disabled />
+                    </div>
+                </div>
+                <div class="checkout-form-row">
+                    <div class="checkout-form-control-container w-full">
+                        <label for="phoneNumber">Delivery Notes</label>
+                        <textarea id="phoneNumber" class="checkout-form-control resize-none" rows="5"
+                            name="deliveryNotes" disabled><%= order.shippingDetails.deliveryNotes ?? '' %></textarea>
+                    </div>
+                </div>
+            </div>
+            <!-- product end -->
+        </div>
+        <div class="checkout-section-wrapper">
+            <h1 class="checkout-section-title">Payment Method</h1>
+            <section class="checkout-section">
+                <div class="payment-wrapper">
+                    <div class="payment-method">
+                        <input type="radio" class="payment-method-control" name="paymentMethod" id="payment-method"
+                            value="1" <%  if(order.paymentMethod === 1) { %> checked <% } %> disabled />
+                        <p class="payment-method-text">Credit Card</p>
+                    </div>
+                    <div class="payment-method">
+                        <input type="radio" class="payment-method-control" name="paymentMethod" id="payment-method"
+                            value="2" <%  if(order.paymentMethod === 2) { %> checked <% } %> disabled />
+                        <p class="payment-method-text">Cash On Delivery</p>
+                    </div>
+
+                    <div class="payment-method">
+                        <input type="radio" class="payment-method-control" name="paymentMethod" id="payment-method"
+                            value="3" <%  if(order.paymentMethod === 3) { %> checked <% } %> disabled />
+                        <p class="payment-method-text">Paypal</p>
+                    </div>
+                </div>
+            </section>
+        </div>
+        <div class="checkout-section-wrapper">
+            <h1 class="checkout-section-title">Products Summary</h1>
+            <div class="checkout-products-container">
+                <% for(let product of order.items) { %>
+                <!-- product start -->
+                <div class="checkout-product group">
+                    <!-- product info start -->
+                    <div class="cart-product-info">
+                        <div class="cart-product-image-container">
+                            <div class="cart-product-image-wrapper">
+                                <img class="cart-product-image" src="<%= product.images[0] %>"
+                                    alt="<%= product.title %>" />
+                            </div>
+                        </div>
+
+                        <div class="cart-product-info-wrapper">
+                            <!-- cart product title start -->
+                            <p class="cart-product-title"><%= product.title %></p>
+                            <!-- cart product title end -->
+
+                            <div class="cart-product-details">
+                                <div class="cart-product-details-wrapper">
+                                    <!-- product quantity start -->
+                                    <div class="flex items-center justify-center gap-1">
+                                        <p class="text-lg font-semibold text-slate-700">Qty:</p>
+                                        <p class="text-lg font-bold text-slate-700"><%= product.quantity %></p>
+                                    </div>
+                                    <!-- product quantity end -->
+
+                                    <!-- product price start -->
+                                    <div class="cart-product-price">$<%= +product.price * +product.quantity %></div>
+                                    <!-- product price end -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- product info end -->
+                </div>
+                <!-- product end -->
+                <% } %>
+            </div>
+        </div>
+    </div>
+
+    <!-- left products section end -->
+    <!-- right cart details section start -->
+    <div class="checkout-summary-container">
+        <h1 class="cart-info-title">Order Summary</h1>
+        <div class="cart-subtotal-container">
+            <p class="cart-info-heading">Subtotal <span class="cart-info-subtitle"> (<%= order.items.length %>
+                    items)</span></p>
+            <p class="cart-info-price">$<%= +order.price  %></p>
+        </div>
+        <div class="cart-subtotal-container">
+            <p class="cart-info-heading">Shipping</p>
+            <p class="cart-info-price">$<%= +order.shipping === 0 ? 'Free' : +order.shipping  %></p>
+        </div>
+        <div class="cart-subtotal-container">
+            <p class="cart-info-heading">Status</p>
+            <p class="cart-info-price">
+                <% if (order.status === 1) { %> Pending <% } %>
+                <% if (order.status === 2) { %> Shipped <% } %>
+                <% if (order.status === 3) { %> Delivered <% } %>
+                <% if (order.status === 4) { %> Cancelled <% } %>
+            </p>
+        </div>
+        <% if (order.promoCode) { %>
+        <div
+            class="p-3 rounded-md outline-blue-500 border border-gray-200 placeholder:text-slate-400 w-auto uppercase bg-gray-200 text-slate-500 font-semibold">
+            <%= order.promoCode.code %></div>
+
+        <div class="cart-subtotal-container">
+            <p class="cart-discount-heading">Discount Applied</p>
+            <p class="cart-discount-price">$<%= +order.discountValue %></p>
+        </div>
+        <% } %>
+        <div class="cart-subtotal-container">
+            <p class="cart-info-total">Total</p>
+            <p class="cart-info-total-price">$<% if (order.promoCode) { %>
+                <%= +((+order.price + +order.shipping) - + order.discountValue).toFixed(2) %>
+                <% } else { %>
+                <%= +(+order.price + +order.shipping).toFixed(2) %> <% } %></p>
+        </div>
+        <div class="cart-checkout-wrapper">
+            <a href="/order_invoice/<%= order._id %>" class="cart-checkout text-center">Download Invoice</a>
+        </div>
+    </div>
+    <!-- right cart details section end -->
+</main>
+<!--!! content end !!-->
+<%- include('./../layouts/footer.ejs') %>
+<%- include('./../layouts/main_end.ejs') %>
