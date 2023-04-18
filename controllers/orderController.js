@@ -4,8 +4,6 @@ const order = require("../models/order");
 const PromoCode = require("../models/promocode"),
     Order = require("../models/order"),
     VIEW_PREFIX = "shop/",
-    fs = require("fs"),
-    path = require("path"),
     PdfDocument = require("pdfkit-table"),
     Stripe = require("stripe"),
     env = require("dotenv");
@@ -55,6 +53,7 @@ exports.getCheckout = async (req, res, next) => {
 
 exports.postAddPromo = async (req, res, next) => {
     const reqPromoCode = req.body.promocode;
+
     // VALIDATE IF PROMOCODE CAN BE USED
     if (reqPromoCode) {
         const promoCode = await PromoCode.isAvailable(reqPromoCode, req.user._id);
@@ -78,12 +77,15 @@ exports.postRemovePromo = (req, res, next) => {
 exports.postCreateOrder = async (req, res, next) => {
     // REMOVE ANY PREVIOUS SAVED ORDERS
     req.flash("orderDetails");
+
     // VALIDATE ORDER FORM (SHIPPING DETAILS AND PAYMENT METHOD)
     let stripeSession;
+
     const paymentMethod = +req.body.paymentMethod;
     return req.user
         .getCart()
         .then(async (cart) => {
+            // CHANGE CART ITEMS FORMAT
             cart.items = cart.items.map((item) => {
                 let newItem = { ...item };
                 newItem = newItem._doc;
@@ -95,8 +97,9 @@ exports.postCreateOrder = async (req, res, next) => {
             const promoCode = req.app.get("promoCode") ?? null,
                 promoDiscount = req.app.get("promoDiscountValue") ?? 0;
 
+            // IF USER WILL PAY WITH STRIPE
             if (paymentMethod === 1) {
-                //! PAYMENT
+                // ADD PAYMENT ITEMS DETAILS
                 let cartItems = cart.items.map((item) => {
                     return {
                         price_data: {
@@ -121,13 +124,15 @@ exports.postCreateOrder = async (req, res, next) => {
                     quantity: 1,
                 });
 
+                // CONFIGURE STRIPE SESSION
                 stripeSession = await stripe.checkout.sessions.create({
                     line_items: cartItems,
                     mode: "payment",
                     success_url: `${req.protocol}://${req.get("host")}/checkout/success?SESSION_ID={CHECKOUT_SESSION_ID}`,
                     cancel_url: `${req.protocol}://${req.get("host")}/checkout`,
                 });
-                console.log(req.flash("orderDetails"));
+
+                // ADD ORDER DETAILS TO THE REQUEST TEMPORARILY TO GET IT AFTER PAYMENT SUCCESS
                 req.flash("orderDetails", {
                     items: cart.items,
                     paymentMethod: paymentMethod,
@@ -151,6 +156,7 @@ exports.postCreateOrder = async (req, res, next) => {
                 return stripeSession;
             }
 
+            // IF USER WILL PAY WITH CASH ON DELIVERY OR PAYPAL , CREATE ORDER AND SAVE IT
             return new Order({
                 items: cart.items,
                 paymentMethod: paymentMethod,
@@ -174,6 +180,7 @@ exports.postCreateOrder = async (req, res, next) => {
         })
         .then((result) => {
             if (result) {
+                // IF USER WON'T PAY WITH STRIPE
                 if (result instanceof Order) {
                     req.user.cart = [];
                     req.app.set("promoCode", null);
@@ -192,7 +199,10 @@ exports.postCreateOrder = async (req, res, next) => {
                             const error = new Error(`Cannot reset cart: ${err}`);
                             return next(error);
                         });
-                } else {
+                }
+
+                // REDIRECT TO STRIPE PAGE
+                else {
                     return res.redirect(result.url);
                 }
             } else {
@@ -205,150 +215,72 @@ exports.postCreateOrder = async (req, res, next) => {
         });
 };
 
-exports.getCheckoutSuccess = (req, res, next) => {
+// WHEN STRIPE CHECKOUT SUCCESS
+exports.getCheckoutSuccess = async (req, res, next) => {
     try {
         savedOrder = req.flash("orderDetails")[0];
     } catch {
         savedOrder = null;
     }
-    if (savedOrder) {
-        savedOrder.items.map((item) => {
-            item._id = new ObjectId(item._id);
-            item.userID = new ObjectId(item.userID);
-            console.log(item);
-            return item;
-        });
 
-        const order = new Order({
-            items: savedOrder.items,
-            paymentMethod: savedOrder.paymentMethod,
-            price: savedOrder.price,
-            shipping: savedOrder.shipping,
-            shippingDetails: savedOrder.shippingDetails,
-            userID: savedOrder.userID,
-            discountValue: savedOrder.discountValue,
-            promoCode: savedOrder.promoCode,
-        });
-        // console.log("New order: ", order);
-        return order
-            .save()
-            .then((created) => {
-                req.user.cart = [];
-                req.app.set("promoCode", null);
-                req.app.set("promoDiscountValue", 0);
-                req.user
-                    .save()
-                    .then((_) => {
-                        res.locals.cartItemsCount = 0;
-                        res.render(`${VIEW_PREFIX}order_confirmation`, {
-                            path: null,
-                            pageTitle: `Order Confirmed`,
-                            orderID: created._id,
-                        });
-                    })
-                    .catch((err) => {
-                        const error = new Error(`Cannot reset cart: ${err}`);
-                        return next(error);
-                    });
-            })
-            .catch((err) => {
-                const error = new Error(`Error creating order success: ${err}`);
-                return next(error);
+    const sessionID = req?.query?.SESSION_ID ?? null;
+
+    // IF THERE'S A SAVED ORDER BEFORE STRIPE CHECKOUT
+    if (savedOrder && sessionID) {
+        let session;
+        try {
+            session = await stripe.checkout.sessions.retrieve(sessionID);
+        } catch {
+            session = null;
+        }
+
+        if (session && session.status === "complete" && session.payment_status === "paid") {
+            savedOrder.items.map((item) => {
+                item._id = new ObjectId(item._id);
+                item.userID = new ObjectId(item.userID);
+                return item;
             });
-    } else {
-        return res.redirect("/checkout");
+
+            const order = new Order({
+                items: savedOrder.items,
+                paymentMethod: savedOrder.paymentMethod,
+                price: savedOrder.price,
+                shipping: savedOrder.shipping,
+                shippingDetails: savedOrder.shippingDetails,
+                userID: savedOrder.userID,
+                discountValue: savedOrder.discountValue,
+                promoCode: savedOrder.promoCode,
+            });
+            return order
+                .save()
+                .then((created) => {
+                    req.user.cart = [];
+                    req.app.set("promoCode", null);
+                    req.app.set("promoDiscountValue", 0);
+                    req.user
+                        .save()
+                        .then((_) => {
+                            res.locals.cartItemsCount = 0;
+                            res.render(`${VIEW_PREFIX}order_confirmation`, {
+                                path: null,
+                                pageTitle: `Order Confirmed`,
+                                orderID: created._id,
+                            });
+                        })
+                        .catch((err) => {
+                            const error = new Error(`Cannot reset cart: ${err}`);
+                            return next(error);
+                        });
+                })
+                .catch((err) => {
+                    const error = new Error(`Error creating order success: ${err}`);
+                    return next(error);
+                });
+        }
     }
+    req.flash("orderDetails");
+    return res.redirect("/checkout");
 };
-
-// exports.postCreateOrder = async (req, res, next) => {
-//     // VALIDATE ORDER FORM (SHIPPING DETAILS AND PAYMENT METHOD)
-//     //! PAYMENT
-
-//     let cartItems = cart.items.map((item) => {
-//         return {
-//             price_data: {
-//                 unit_amount: item.price * 100,
-//                 currency: "usd",
-//                 product_data: {
-//                     name: item.title,
-//                     description: item.description,
-//                 },
-//             },
-//             quantity: item.quantity,
-//         };
-//     });
-
-//     let stripeSession = await stripe.checkout.sessions.create({
-//         line_items: cartItems,
-//         mode: "payment",
-//         success_url: `${req.protocol}://${req.get("host")}/checkout/success`,
-//         cancel_url: `${req.protocol}://${req.get("host")}/checkout/cancel`,
-//     });
-
-//     //! PAYMENT
-
-//     return req.user
-//         .getCart()
-//         .then(async (cart) => {
-//             cart.items = cart.items.map((item) => {
-//                 let newItem = { ...item };
-//                 newItem = newItem._doc;
-//                 delete newItem.__v;
-//                 newItem.quantity = item.quantity;
-//                 return newItem;
-//             });
-//             const promoCode = req.app.get("promoCode") ?? null,
-//                 promoDiscount = req.app.get("promoDiscountValue") ?? 0,
-//                 order = new Order({
-//                     items: cart.items,
-//                     // paymentMethod: +req.body.paymentMethod,
-//                     price: cart.price,
-//                     shipping: cart.shipping,
-//                     shippingDetails: {
-//                         firstName: req.body.firstName,
-//                         lastName: req.body.lastName,
-//                         streetAddress: req.body.streetAddress,
-//                         buildingNo: req.body.buildingNo,
-//                         city: req.body.city,
-//                         state: req.body.state,
-//                         postalCode: req.body.postalCode,
-//                         phoneNumber: req.body.phoneNumber,
-//                         deliveryNotes: req.body.deliveryNotes ?? null,
-//                     },
-//                     userID: req.user,
-//                     discountValue: promoDiscount,
-//                     promoCode: promoCode,
-//                 });
-//             return order.save();
-//         })
-//         .then((createdOrder) => {
-//             if (createdOrder) {
-//                 req.user.cart = [];
-//                 req.app.set("promoCode", null);
-//                 req.app.set("promoDiscountValue", 0);
-//                 req.user
-//                     .save()
-//                     .then((newUser) => {
-//                         res.locals.cartItemsCount = 0;
-//                         res.render(`${VIEW_PREFIX}order_confirmation`, {
-//                             path: null,
-//                             pageTitle: `Order Confirmed`,
-//                             orderID: createdOrder._id,
-//                         });
-//                     })
-//                     .catch((err) => {
-//                         const error = new Error(`Cannot reset cart: ${err}`);
-//                         return next(error);
-//                     });
-//             } else {
-//                 res.redirect("/checkout");
-//             }
-//         })
-//         .catch((err) => {
-//             const error = new Error(`Error while creating order: ${err}`);
-//             return next(error);
-//         });
-// };
 
 exports.getOrder = (req, res, next) => {
     return Order.findOne({
