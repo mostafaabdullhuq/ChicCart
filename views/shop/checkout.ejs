@@ -87,7 +87,7 @@
                     <div class="payment-method">
                         <input form="checkoutForm" type="radio" class="payment-method-control" name="paymentMethod"
                             id="payment-method" value="1" checked />
-                        <p class="payment-method-text">Credit Card</p>
+                        <p class="payment-method-text">Stripe</p>
                     </div>
                     <div class="payment-method">
                         <input form="checkoutForm" type="radio" class="payment-method-control" name="paymentMethod"
@@ -211,16 +211,18 @@
         <div class="cart-subtotal-container">
             <p class="cart-info-total">Total</p>
             <p class="cart-info-total-price">$<% if (promoCode) { %>
-                <%= +((+totalPrice + +totalShipping) - + promoDiscountValue).toFixed(2) %>
+                <%=+((+totalPrice + +totalShipping) - + promoDiscountValue).toFixed(2)%>
                 <% } else { %>
-                <%= +(+totalPrice + +totalShipping).toFixed(2) %> <% } %></p>
+                <%=+(+totalPrice + +totalShipping).toFixed(2) %> <% } %></p>
         </div>
         <div class="cart-checkout-wrapper">
             <button type="submit" class="cart-checkout" form="checkoutForm">Place Order</button>
+            <!-- <button type="button" class="cart-checkout" id="order-checkout">Place Order</button> -->
         </div>
     </div>
     <!-- right cart details section end -->
 </main>
+<script src="https://js.stripe.com/v3/"></script>
 <!--!! content end !!-->
 <%- include('./../layouts/footer.ejs') %>
 <%- include('./../layouts/main_end.ejs') %>

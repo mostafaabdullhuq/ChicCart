@@ -1,17 +1,28 @@
+const { ObjectId } = require("mongodb");
+const order = require("../models/order");
+
 const PromoCode = require("../models/promocode"),
     Order = require("../models/order"),
     VIEW_PREFIX = "shop/",
     fs = require("fs"),
     path = require("path"),
-    PdfDocument = require("pdfkit-table");
+    PdfDocument = require("pdfkit-table"),
+    Stripe = require("stripe"),
+    env = require("dotenv");
+
+const STRIPE_API_SECRET = env.config().parsed.STRIPE_API_SECRET;
+const stripe = Stripe(STRIPE_API_SECRET);
 
 // CHECKOUT PAGE
 exports.getCheckout = async (req, res, next) => {
+    // REMOVE ANY PREVIOUS SAVED ORDERS
+    req.flash("orderDetails");
+
     return req.user
         .getCart()
-        .then((cart) => {
+        .then(async (cart) => {
             if (cart?.items?.length) {
-                res.render(`${VIEW_PREFIX}checkout`, {
+                return res.render(`${VIEW_PREFIX}checkout`, {
                     products: cart.items,
                     pageTitle: "Order Checkout",
                     path: null,
@@ -64,8 +75,12 @@ exports.postRemovePromo = (req, res, next) => {
     res.redirect("/checkout");
 };
 
-exports.postCreateOrder = (req, res, next) => {
+exports.postCreateOrder = async (req, res, next) => {
+    // REMOVE ANY PREVIOUS SAVED ORDERS
+    req.flash("orderDetails");
     // VALIDATE ORDER FORM (SHIPPING DETAILS AND PAYMENT METHOD)
+    let stripeSession;
+    const paymentMethod = +req.body.paymentMethod;
     return req.user
         .getCart()
         .then(async (cart) => {
@@ -76,11 +91,46 @@ exports.postCreateOrder = (req, res, next) => {
                 newItem.quantity = item.quantity;
                 return newItem;
             });
+
             const promoCode = req.app.get("promoCode") ?? null,
-                promoDiscount = req.app.get("promoDiscountValue") ?? 0,
-                order = new Order({
+                promoDiscount = req.app.get("promoDiscountValue") ?? 0;
+
+            if (paymentMethod === 1) {
+                //! PAYMENT
+                let cartItems = cart.items.map((item) => {
+                    return {
+                        price_data: {
+                            unit_amount: item.price * 100,
+                            currency: "usd",
+                            product_data: {
+                                name: item.title,
+                                description: item.description,
+                            },
+                        },
+                        quantity: item.quantity,
+                    };
+                });
+                cartItems.push({
+                    price_data: {
+                        unit_amount: cart.shipping * 100,
+                        currency: "usd",
+                        product_data: {
+                            name: "Shipping",
+                        },
+                    },
+                    quantity: 1,
+                });
+
+                stripeSession = await stripe.checkout.sessions.create({
+                    line_items: cartItems,
+                    mode: "payment",
+                    success_url: `${req.protocol}://${req.get("host")}/checkout/success?SESSION_ID={CHECKOUT_SESSION_ID}`,
+                    cancel_url: `${req.protocol}://${req.get("host")}/checkout`,
+                });
+                console.log(req.flash("orderDetails"));
+                req.flash("orderDetails", {
                     items: cart.items,
-                    paymentMethod: +req.body.paymentMethod,
+                    paymentMethod: paymentMethod,
                     price: cart.price,
                     shipping: cart.shipping,
                     shippingDetails: {
@@ -94,32 +144,57 @@ exports.postCreateOrder = (req, res, next) => {
                         phoneNumber: req.body.phoneNumber,
                         deliveryNotes: req.body.deliveryNotes ?? null,
                     },
-                    userID: req.user,
+                    userID: req.user._id,
                     discountValue: promoDiscount,
                     promoCode: promoCode,
                 });
-            // console.log(order);
-            return order.save();
+                return stripeSession;
+            }
+
+            return new Order({
+                items: cart.items,
+                paymentMethod: paymentMethod,
+                price: cart.price,
+                shipping: cart.shipping,
+                shippingDetails: {
+                    firstName: req.body.firstName,
+                    lastName: req.body.lastName,
+                    streetAddress: req.body.streetAddress,
+                    buildingNo: req.body.buildingNo,
+                    city: req.body.city,
+                    state: req.body.state,
+                    postalCode: req.body.postalCode,
+                    phoneNumber: req.body.phoneNumber,
+                    deliveryNotes: req.body.deliveryNotes ?? null,
+                },
+                userID: req.user,
+                discountValue: promoDiscount,
+                promoCode: promoCode,
+            }).save();
         })
-        .then((createdOrder) => {
-            if (createdOrder) {
-                req.user.cart = [];
-                req.app.set("promoCode", null);
-                req.app.set("promoDiscountValue", 0);
-                req.user
-                    .save()
-                    .then((newUser) => {
-                        res.locals.cartItemsCount = 0;
-                        res.render(`${VIEW_PREFIX}order_confirmation`, {
-                            path: null,
-                            pageTitle: `Order Confirmed`,
-                            orderID: createdOrder._id,
+        .then((result) => {
+            if (result) {
+                if (result instanceof Order) {
+                    req.user.cart = [];
+                    req.app.set("promoCode", null);
+                    req.app.set("promoDiscountValue", 0);
+                    req.user
+                        .save()
+                        .then((newUser) => {
+                            res.locals.cartItemsCount = 0;
+                            res.render(`${VIEW_PREFIX}order_confirmation`, {
+                                path: null,
+                                pageTitle: `Order Confirmed`,
+                                orderID: result._id,
+                            });
+                        })
+                        .catch((err) => {
+                            const error = new Error(`Cannot reset cart: ${err}`);
+                            return next(error);
                         });
-                    })
-                    .catch((err) => {
-                        const error = new Error(`Cannot reset cart: ${err}`);
-                        return next(error);
-                    });
+                } else {
+                    return res.redirect(result.url);
+                }
             } else {
                 res.redirect("/checkout");
             }
@@ -129,6 +204,151 @@ exports.postCreateOrder = (req, res, next) => {
             return next(error);
         });
 };
+
+exports.getCheckoutSuccess = (req, res, next) => {
+    try {
+        savedOrder = req.flash("orderDetails")[0];
+    } catch {
+        savedOrder = null;
+    }
+    if (savedOrder) {
+        savedOrder.items.map((item) => {
+            item._id = new ObjectId(item._id);
+            item.userID = new ObjectId(item.userID);
+            console.log(item);
+            return item;
+        });
+
+        const order = new Order({
+            items: savedOrder.items,
+            paymentMethod: savedOrder.paymentMethod,
+            price: savedOrder.price,
+            shipping: savedOrder.shipping,
+            shippingDetails: savedOrder.shippingDetails,
+            userID: savedOrder.userID,
+            discountValue: savedOrder.discountValue,
+            promoCode: savedOrder.promoCode,
+        });
+        // console.log("New order: ", order);
+        return order
+            .save()
+            .then((created) => {
+                req.user.cart = [];
+                req.app.set("promoCode", null);
+                req.app.set("promoDiscountValue", 0);
+                req.user
+                    .save()
+                    .then((_) => {
+                        res.locals.cartItemsCount = 0;
+                        res.render(`${VIEW_PREFIX}order_confirmation`, {
+                            path: null,
+                            pageTitle: `Order Confirmed`,
+                            orderID: created._id,
+                        });
+                    })
+                    .catch((err) => {
+                        const error = new Error(`Cannot reset cart: ${err}`);
+                        return next(error);
+                    });
+            })
+            .catch((err) => {
+                const error = new Error(`Error creating order success: ${err}`);
+                return next(error);
+            });
+    } else {
+        return res.redirect("/checkout");
+    }
+};
+
+// exports.postCreateOrder = async (req, res, next) => {
+//     // VALIDATE ORDER FORM (SHIPPING DETAILS AND PAYMENT METHOD)
+//     //! PAYMENT
+
+//     let cartItems = cart.items.map((item) => {
+//         return {
+//             price_data: {
+//                 unit_amount: item.price * 100,
+//                 currency: "usd",
+//                 product_data: {
+//                     name: item.title,
+//                     description: item.description,
+//                 },
+//             },
+//             quantity: item.quantity,
+//         };
+//     });
+
+//     let stripeSession = await stripe.checkout.sessions.create({
+//         line_items: cartItems,
+//         mode: "payment",
+//         success_url: `${req.protocol}://${req.get("host")}/checkout/success`,
+//         cancel_url: `${req.protocol}://${req.get("host")}/checkout/cancel`,
+//     });
+
+//     //! PAYMENT
+
+//     return req.user
+//         .getCart()
+//         .then(async (cart) => {
+//             cart.items = cart.items.map((item) => {
+//                 let newItem = { ...item };
+//                 newItem = newItem._doc;
+//                 delete newItem.__v;
+//                 newItem.quantity = item.quantity;
+//                 return newItem;
+//             });
+//             const promoCode = req.app.get("promoCode") ?? null,
+//                 promoDiscount = req.app.get("promoDiscountValue") ?? 0,
+//                 order = new Order({
+//                     items: cart.items,
+//                     // paymentMethod: +req.body.paymentMethod,
+//                     price: cart.price,
+//                     shipping: cart.shipping,
+//                     shippingDetails: {
+//                         firstName: req.body.firstName,
+//                         lastName: req.body.lastName,
+//                         streetAddress: req.body.streetAddress,
+//                         buildingNo: req.body.buildingNo,
+//                         city: req.body.city,
+//                         state: req.body.state,
+//                         postalCode: req.body.postalCode,
+//                         phoneNumber: req.body.phoneNumber,
+//                         deliveryNotes: req.body.deliveryNotes ?? null,
+//                     },
+//                     userID: req.user,
+//                     discountValue: promoDiscount,
+//                     promoCode: promoCode,
+//                 });
+//             return order.save();
+//         })
+//         .then((createdOrder) => {
+//             if (createdOrder) {
+//                 req.user.cart = [];
+//                 req.app.set("promoCode", null);
+//                 req.app.set("promoDiscountValue", 0);
+//                 req.user
+//                     .save()
+//                     .then((newUser) => {
+//                         res.locals.cartItemsCount = 0;
+//                         res.render(`${VIEW_PREFIX}order_confirmation`, {
+//                             path: null,
+//                             pageTitle: `Order Confirmed`,
+//                             orderID: createdOrder._id,
+//                         });
+//                     })
+//                     .catch((err) => {
+//                         const error = new Error(`Cannot reset cart: ${err}`);
+//                         return next(error);
+//                     });
+//             } else {
+//                 res.redirect("/checkout");
+//             }
+//         })
+//         .catch((err) => {
+//             const error = new Error(`Error while creating order: ${err}`);
+//             return next(error);
+//         });
+// };
 
 exports.getOrder = (req, res, next) => {
     return Order.findOne({

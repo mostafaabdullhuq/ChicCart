@@ -2,7 +2,7 @@ const { Router } = require("express"),
     router = Router(),
     { getIndex, getProducts, getProduct } = require("../controllers/productController"),
     { getCart, postCart, getDeleteCart } = require("../controllers/cartController"),
-    { getCheckout, postAddPromo, postRemovePromo, postCreateOrder, getOrder, getOrderInvoice, getUserOrders } = require("../controllers/orderController"),
+    { getCheckout, getCheckoutSuccess, postAddPromo, postRemovePromo, postCreateOrder, getOrder, getOrderInvoice, getUserOrders } = require("../controllers/orderController"),
     isAuthed = require("../middlewares/authed"),
     { getProductValidator } = require("./../middlewares/validators/productValidator"),
     { createOrderValidator } = require("./../middlewares/validators/orderValidator");
@@ -18,6 +18,7 @@ router.post("/cart", isAuthed, postCart); // ADD PRODUCT TO CART
 router.post("/cart/delete", isAuthed, getDeleteCart); // DELETE PRODUCT FROM CART
 
 router.get("/checkout", isAuthed, getCheckout); // GET CHECKOUT PAGE
+router.get("/checkout/success", isAuthed, getCheckoutSuccess); // GET CHECKOUT PAGE
 
 router.post("/promocode/add", isAuthed, postAddPromo); // POST ADD PROMOCODE
 router.post("/promocode/remove", isAuthed, postRemovePromo); // POST REMOVE PROMOCODE
